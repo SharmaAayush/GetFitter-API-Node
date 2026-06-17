@@ -5,7 +5,7 @@ import sequelize from '@/config/database';
 
 // Define the attributes for the Equipment model
 interface EquipmentAttributes {
-  id: number;
+  id: string;
   name: string;
   description?: string;
   createdAt?: Date;
@@ -17,7 +17,7 @@ interface EquipmentAttributes {
 type EquipmentCreationAttributes = Optional<EquipmentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
 export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttributes> {
-  declare id: number;
+  declare id: string;
   declare name: string;
   declare description?: string;
   declare createdAt: Date;
