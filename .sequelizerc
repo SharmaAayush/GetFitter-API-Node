@@ -1,0 +1,17 @@
+// 1. Tell Node to understand TypeScript files on the fly
+require('ts-node').register({
+  esm: true,
+  experimentalSpecifierResolution: 'node'
+});
+
+// 2. Tell Node to understand your path aliases (like @/) from tsconfig.json
+require('tsconfig-paths').register();
+
+const path = require('path');
+
+module.exports = {
+  'config': path.resolve('src', 'config', 'db-config.ts'),
+  'models-path': path.resolve('src', 'models'),
+  'seeders-path': path.resolve('src', 'seeders'),
+  'migrations-path': path.resolve('src', 'migrations')
+};

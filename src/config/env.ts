@@ -10,21 +10,21 @@ class Config {
   public PORT: number;
   // Database configuration
   public DB_TYPE: Dialect = 'postgres';
-  public POSTGRES_HOST: string | undefined;
-  public POSTGRES_PORT: number | undefined;
-  public POSTGRES_USER: string | undefined;
-  public POSTGRES_PASSWORD: string | undefined;
-  public POSTGRES_DB: string | undefined;
+  public POSTGRES_HOST: string;
+  public POSTGRES_PORT: number;
+  public POSTGRES_USER: string;
+  public POSTGRES_PASSWORD: string;
+  public POSTGRES_DB: string;
 
   constructor() {
     this.NODE_ENV = process.env.NODE_ENV || 'development';
     this.PORT = parseInt(process.env.PORT || '3000', 10);
 
-    this.POSTGRES_HOST = process.env.POSTGRES_HOST;
+    this.POSTGRES_HOST = process.env.POSTGRES_HOST || 'localhost';
     this.POSTGRES_PORT = parseInt(process.env.POSTGRES_PORT || '5432', 10);
-    this.POSTGRES_USER = process.env.POSTGRES_USER;
-    this.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD;
-    this.POSTGRES_DB = process.env.POSTGRES_DB;
+    this.POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';
+    this.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || '';
+    this.POSTGRES_DB = process.env.POSTGRES_DB || 'getfitter_node_db';
   }
 }
 
