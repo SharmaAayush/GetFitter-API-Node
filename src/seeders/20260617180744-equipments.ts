@@ -1,5 +1,5 @@
 import Equipment from "@/models/equipment.model";
-import { QueryInterface, Sequelize, WhereOptions } from "sequelize";
+import { QueryInterface, Sequelize } from "sequelize";
 
 const seedData = [
   {

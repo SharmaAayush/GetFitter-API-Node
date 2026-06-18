@@ -1,11 +1,11 @@
-import { QueryInterface, DataTypes } from 'sequelize';
-import { uuidv7 } from 'uuidv7';
+import { DataTypes, QueryInterface, Sequelize } from "sequelize";
+import { uuidv7 } from "uuidv7";
 
-import Equipment from '@/models/equipment.model';
+import BodyPartCategory from "@/models/bodypartcategory";
 
 module.exports = {
-  up: async (queryInterface: QueryInterface) => {
-    await queryInterface.createTable(Equipment.tableName, {
+  async up(queryInterface: QueryInterface, Sequelize: Sequelize) {
+    await queryInterface.createTable(BodyPartCategory.tableName, {
       id: {
         type: DataTypes.UUID,
         // Sequelize invokes this function for every new record
@@ -38,7 +38,7 @@ module.exports = {
     });
   },
 
-  down: async (queryInterface: QueryInterface) => {
-    await queryInterface.dropTable(Equipment.tableName);
+  async down(queryInterface: QueryInterface, Sequelize: Sequelize) {
+    await queryInterface.dropTable(BodyPartCategory.tableName);
   }
 };
