@@ -8,7 +8,15 @@ type DBConfigItem = {
   host: string;
   dialect: Sequelize.Dialect;
   port: number;
-};
+} & (
+    {
+      seederStorage: "sequelize",
+      seederStorageTableName?: string,
+    } | {
+      seederStorage: "json",
+      seederStoragePath?: string,
+    }
+  )
 
 type DBConfig = Record<string, DBConfigItem>;
 
@@ -19,6 +27,7 @@ const dbConfigItem: DBConfigItem = {
   host: config.POSTGRES_HOST,
   dialect: config.DB_TYPE,
   port: config.POSTGRES_PORT,
+  seederStorage: "sequelize",
 };
 
 const dbConfig: DBConfig = {

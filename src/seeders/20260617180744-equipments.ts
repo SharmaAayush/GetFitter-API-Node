@@ -126,6 +126,8 @@ module.exports = {
       where: {
         name: [...seedData.map(item => item.name)]
       },
+      // force is needed to bypass paranoid (soft delete) and permanently remove records from the database
+      force: true,
     });
   }
 };
