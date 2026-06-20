@@ -8,6 +8,7 @@ import healthRoutes from '@/routes/health';
 import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
+import { initAssociations } from './config/model-associations';
 
 class App {
   public app: express.Application;
@@ -49,6 +50,7 @@ class App {
   private async configureDatabase(): Promise<void> {
     try {
       await sequelize.authenticate();
+      initAssociations();
     } catch (error) {
       console.error('Unable to connect to the database:', error);
       process.exit(1);

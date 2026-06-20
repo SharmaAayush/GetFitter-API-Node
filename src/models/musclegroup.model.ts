@@ -2,35 +2,37 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import MuscleGroup from "@/models/musclegroup.model";
+import BodyPartCategory from "@/models/bodypartcategory.model";
 
 // Define the attributes for the Equipment model
-interface BodyPartCategoryAttributes {
+export interface MuscleGroupAttributes {
   id: string;
   name: string;
   description?: string;
+  bodyPartCategoryId: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;
 }
 
 // Define which attributes are optional when creating an Equipment instance
-type BodyPartCategoryCreationAttributes = Optional<BodyPartCategoryAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+export type MuscleGroupCreationAttributes = Optional<MuscleGroupAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
-export class BodyPartCategory extends Model<BodyPartCategoryAttributes, BodyPartCategoryCreationAttributes> {
+export class MuscleGroup extends Model<MuscleGroupAttributes, MuscleGroupCreationAttributes> {
   declare id: string;
   declare name: string;
   declare description?: string;
+  declare bodyPartCategoryId: string;
   declare createdAt: Date;
   declare updatedAt: Date;
   declare deletedAt: Date | null;
 
   public static associate() {
-    BodyPartCategory.hasMany(MuscleGroup, { foreignKey: 'bodyPartCategoryId', onDelete: 'CASCADE' });
-  }
+    MuscleGroup.belongsTo(BodyPartCategory, { foreignKey: 'bodyPartCategoryId', onDelete: 'CASCADE' });
+  } 
 }
 
-BodyPartCategory.init(
+MuscleGroup.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -48,6 +50,10 @@ BodyPartCategory.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    bodyPartCategoryId: {
+      type: DataTypes.UUID,
+      allowNull: false,
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -64,9 +70,9 @@ BodyPartCategory.init(
   },
   {
     sequelize,
-    tableName: 'BodyPartCategories',
+    tableName: 'MuscleGroups',
     paranoid: true, // Enable paranoid mode for soft deletes
   }
 );
 
-export default BodyPartCategory;
+export default MuscleGroup;
