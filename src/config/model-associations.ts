@@ -1,8 +1,8 @@
 import BodyPartCategory from "@/models/bodypartcategory.model";
 import MuscleGroup from "@/models/musclegroup.model";
-import { ModelWithAssociations } from "@/types/base.models";
+import { IModelWithAssociations } from "@/types/base.models";
 
-const setupAssociations = (models: ModelWithAssociations[]) => {
+const setupAssociations = (models: IModelWithAssociations[]) => {
   models.forEach(model => model.associate());
 }
 

@@ -8,18 +8,25 @@ import healthRoutes from '@/routes/health.routes';
 import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
-import { initAssociations } from './config/model-associations';
-import logger from './services/logger';
+import { initAssociations } from '@/config/model-associations';
+import logger from '@/services/logger';
+import { initializeModels } from '@/config/model-initialization';
 
 class App {
   public app: express.Application;
 
   constructor() {
     this.app = express();
+    this.configureModels();
     this.configureMiddlewares();
     this.configureRoutes();
     this.configureErrorHandling();
     this.configureDatabase();
+  }
+
+  private configureModels(): void {
+    initializeModels();
+    initAssociations();
   }
 
   private configureMiddlewares(): void {
@@ -51,7 +58,6 @@ class App {
   private async configureDatabase(): Promise<void> {
     try {
       await sequelize.authenticate();
-      initAssociations();
     } catch (error) {
       logger.error('Unable to connect to the database:', error);
       process.exit(1);

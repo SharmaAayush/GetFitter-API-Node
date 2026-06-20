@@ -1,6 +1,6 @@
 import Equipment from "@/models/equipment.model";
 import { errAsync, okAsync } from "neverthrow";
-import logger from "./logger";
+import logger from "@/services/logger";
 
 export class EquipmentService {
   static async getAll() {
