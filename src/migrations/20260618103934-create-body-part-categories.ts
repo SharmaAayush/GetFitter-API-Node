@@ -4,7 +4,7 @@ import { uuidv7 } from "uuidv7";
 import BodyPartCategory from "@/models/bodypartcategory";
 
 module.exports = {
-  async up(queryInterface: QueryInterface, Sequelize: Sequelize) {
+  async up(queryInterface: QueryInterface, _Sequelize: Sequelize) {
     await queryInterface.createTable(BodyPartCategory.tableName, {
       id: {
         type: DataTypes.UUID,
@@ -38,7 +38,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface: QueryInterface, Sequelize: Sequelize) {
+  async down(queryInterface: QueryInterface, _Sequelize: Sequelize) {
     await queryInterface.dropTable(BodyPartCategory.tableName);
   }
 };

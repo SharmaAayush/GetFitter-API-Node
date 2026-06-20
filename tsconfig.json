@@ -26,8 +26,23 @@
     "declaration": true,
     "declarationMap": true,
 
-    // Stricter Typechecking Options
+    // Enable strict mode
+    "strict": true,
+    // Must haves
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnusedLabels": false,
+    "noUncheckedSideEffectImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowUnreachableCode": false,
+    
+    // Highly suggested
     "noUncheckedIndexedAccess": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "erasableSyntaxOnly": true,
+
+    // Enforce explicit overrides
+    "noImplicitOverride": true,
     "exactOptionalPropertyTypes": true,
 
     // Style Options
@@ -38,11 +53,8 @@
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
 
-    // Recommended Options
-    "strict": true,
     // "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,

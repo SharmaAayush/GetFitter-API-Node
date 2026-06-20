@@ -26,26 +26,26 @@ class Config {
   }
 
   private setServerConfig() {
-    this.NODE_ENV = process.env.NODE_ENV || 'development';
-    this.PORT = parseInt(process.env.PORT || '3000', 10);
+    this.NODE_ENV = process.env["NODE_ENV"] || 'development';
+    this.PORT = parseInt(process.env["PORT"] || '3000', 10);
   }
 
   private setDatabaseConfig() {
     this.DB_TYPE = 'postgres';
-    this.POSTGRES_HOST = process.env.POSTGRES_HOST || 'localhost';
-    this.POSTGRES_PORT = parseInt(process.env.POSTGRES_PORT || '5432', 10);
-    this.POSTGRES_USER = process.env.POSTGRES_USER || 'postgres';
-    this.POSTGRES_PASSWORD = process.env.POSTGRES_PASSWORD || '';
-    this.POSTGRES_DB = process.env.POSTGRES_DB || 'getfitter_node_db';
+    this.POSTGRES_HOST = process.env["POSTGRES_HOST"] || 'localhost';
+    this.POSTGRES_PORT = parseInt(process.env["POSTGRES_PORT"] || '5432', 10);
+    this.POSTGRES_USER = process.env["POSTGRES_USER"] || 'postgres';
+    this.POSTGRES_PASSWORD = process.env["POSTGRES_PASSWORD"] || '';
+    this.POSTGRES_DB = process.env["POSTGRES_DB"] || 'getfitter_node_db';
   }
 
   private setLoggingConfig() {
-    let LOG_LEVEL = process.env.LOG_LEVEL;
+    let LOG_LEVEL = process.env["LOG_LEVEL"];
     if (!LOG_LEVEL || !['error', 'warn', 'info', 'http', 'verbose', 'debug', 'sill'].includes(LOG_LEVEL)) {
-      LOG_LEVEL = process.env.NODE_ENV === 'production' ? 'error' : 'debug';
+      LOG_LEVEL = process.env["NODE_ENV"] === 'production' ? 'error' : 'debug';
     }
     this.LOG_LEVEL = LOG_LEVEL;
-    this.CONSOLE_LOGGING = process.env.CONSOLE_LOGGING === 'true' || false;
+    this.CONSOLE_LOGGING = process.env["CONSOLE_LOGGING"] === 'true' || false;
   }
 }
 

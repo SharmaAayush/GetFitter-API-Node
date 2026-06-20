@@ -1,9 +1,9 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import config from '@/config/env';
 
 const router = Router();
 
-router.get('/', (req, res) => {
+router.get('/', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     data: {

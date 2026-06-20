@@ -3,7 +3,7 @@ import Equipment from '@/models/equipment.model';
 import logger from '@/services/logger';
 
 export class EquipmentController {
-  static async getAllEquipment(req: Request, res: Response): Promise<void> {
+  static async getAllEquipment(_req: Request, res: Response): Promise<void> {
     try {
       const equipments = await Equipment.findAll({
         attributes: ['id', 'name', 'description'], // Select specific attributes
@@ -46,7 +46,7 @@ export class EquipmentController {
       }
 
       const equipment = await Equipment.findByPk(
-        <string>id,
+        id as string,
         { attributes: ['id', 'name', 'description'] }
       );
 

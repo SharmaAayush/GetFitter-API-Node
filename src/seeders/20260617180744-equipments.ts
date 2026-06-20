@@ -117,11 +117,11 @@ const seedData = [
 ];
 
 module.exports = {
-  async up(queryInterface: QueryInterface, Sequelize: Sequelize) {
+  async up(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
     await Equipment.bulkCreate([...seedData]);
   },
 
-  async down(queryInterface: QueryInterface, Sequelize: Sequelize) {
+  async down(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
     await Equipment.destroy({
       where: {
         name: [...seedData.map(item => item.name)]
