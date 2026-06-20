@@ -1,7 +1,7 @@
 import { DataTypes, QueryInterface, Sequelize } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
-import BodyPartCategory from "@/models/bodypartcategory";
+import BodyPartCategory from "@/models/bodypartcategory.model";
 
 module.exports = {
   async up(queryInterface: QueryInterface, _Sequelize: Sequelize) {

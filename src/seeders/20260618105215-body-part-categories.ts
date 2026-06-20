@@ -1,4 +1,4 @@
-import BodyPartCategory from "@/models/bodypartcategory";
+import BodyPartCategory from "@/models/bodypartcategory.model";
 import { QueryInterface, Sequelize } from "sequelize";
 
 const SeedData = [

@@ -5,7 +5,7 @@ import morgan from 'morgan';
 
 import config from '@/config/env';
 import healthRoutes from '@/routes/health';
-import equipmentRoutes from '@/routes/equipmentRoutes';
+import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
 
@@ -38,8 +38,8 @@ class App {
   private configureRoutes(): void {
     // Health check route
     this.app.use('/health', healthRoutes);
-    // Equipment routes
-    this.app.use('/equipment', equipmentRoutes);
+    // Register API handler
+    this.app.use('/api', apiRoutes);
   }
 
   private configureErrorHandling(): void {
