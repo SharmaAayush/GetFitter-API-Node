@@ -2,6 +2,7 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
+import { EquipmentResponse } from "@/types/equipment";
 
 // Define the attributes for the Equipment model
 interface EquipmentAttributes {
@@ -23,6 +24,15 @@ export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttri
   declare createdAt: Date;
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
+
+  transform(): EquipmentResponse {
+    const response: EquipmentResponse = {
+      id: this.id,
+      name: this.name,
+    };
+    if (this.description) response.description = this.description;
+    return response;
+  }
 }
 
 Equipment.init(

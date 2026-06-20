@@ -3,8 +3,8 @@ import { Router } from "express";
 
 const router = Router();
 
-router.get('/', EquipmentController.getAllEquipment);
+router.get('/', EquipmentController.getAll);
 
-router.get('/:id', EquipmentController.getEquipmentById);
+router.get('/:id', EquipmentController.getById);
 
 export default router;
