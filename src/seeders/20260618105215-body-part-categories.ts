@@ -1,5 +1,4 @@
 import BodyPartCategory from "@/models/bodypartcategory.model";
-import { QueryInterface, Sequelize } from "sequelize";
 
 const SeedData = [
   {
@@ -45,11 +44,11 @@ const SeedData = [
 ];
 
 module.exports = {
-  async up(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async up() {
     await BodyPartCategory.bulkCreate([...SeedData]);
   },
 
-  async down(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async down() {
     await BodyPartCategory.destroy({
       where: {
         name: [...SeedData.map(item => item.name)]

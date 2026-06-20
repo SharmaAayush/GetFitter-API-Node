@@ -1,6 +1,6 @@
 import BodyPartCategory from "@/models/bodypartcategory.model";
 import MuscleGroup, { MuscleGroupCreationAttributes } from "@/models/musclegroup.model";
-import { Optional, QueryInterface, Sequelize } from "sequelize";
+import { Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/lib/utils";
 
 const seedData = [
@@ -102,7 +102,7 @@ const seedData = [
 ];
 
 module.exports = {
-  async up(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async up() {
     const bodyPartCategories = await BodyPartCategory.findAll();
     const mappedSeedData: readonly Optional<MuscleGroupCreationAttributes, NullishPropertiesOf<MuscleGroupCreationAttributes>>[] = seedData.map(data => ({
       name: data.name,
@@ -112,7 +112,7 @@ module.exports = {
     await MuscleGroup.bulkCreate(mappedSeedData);
   },
 
-  async down(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async down() {
     await MuscleGroup.destroy({
       where: {
         name: [...seedData.map(data => data.name)],

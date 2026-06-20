@@ -1,6 +1,5 @@
 import Sequelize from 'sequelize';
-// We need to import with extension to make sequelize-cli work
-// @ts-ignore
+// @ts-expect-error We need to import with extension to make sequelize-cli work
 import config from './env.ts';
 
 type DBConfigItem = {

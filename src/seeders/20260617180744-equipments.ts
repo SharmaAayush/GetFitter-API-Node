@@ -1,5 +1,4 @@
 import Equipment from "@/models/equipment.model";
-import { QueryInterface, Sequelize } from "sequelize";
 
 const seedData = [
   {
@@ -117,11 +116,11 @@ const seedData = [
 ];
 
 module.exports = {
-  async up(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async up() {
     await Equipment.bulkCreate([...seedData]);
   },
 
-  async down(_queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async down() {
     await Equipment.destroy({
       where: {
         name: [...seedData.map(item => item.name)]

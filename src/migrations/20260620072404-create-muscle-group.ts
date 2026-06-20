@@ -1,11 +1,11 @@
-import { DataTypes, QueryInterface, Sequelize } from "sequelize";
+import { DataTypes, QueryInterface } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import BodyPartCategory from "@/models/bodypartcategory.model";
 import MuscleGroup from "@/models/musclegroup.model";
 
 module.exports = {
-  async up(queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async up(queryInterface: QueryInterface) {
     await queryInterface.createTable(MuscleGroup.tableName, {
       id: {
         type: DataTypes.UUID,
@@ -47,7 +47,7 @@ module.exports = {
     });
   },
 
-  async down(queryInterface: QueryInterface, _Sequelize: Sequelize) {
+  async down(queryInterface: QueryInterface) {
     await queryInterface.dropTable(MuscleGroup.tableName);
   }
 };

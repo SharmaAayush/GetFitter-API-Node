@@ -1,9 +1,9 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response } from 'express';
 
 import config from '@/config/env';
 import logger from '@/services/logger';
 
-export const errorHandler = (error: Error, _req: Request, res: Response, _next: NextFunction) => {
+export const errorHandler = (error: Error, _req: Request, res: Response) => {
   logger.error('Received an unhandled error:', error);
 
   res.status(500).json({
