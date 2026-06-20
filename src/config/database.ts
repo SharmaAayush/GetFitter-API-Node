@@ -1,5 +1,6 @@
 import { Sequelize } from 'sequelize';
 import config from '@/config/env';
+import logger from '@/services/logger';
 
 const sequelize = new Sequelize(
   config.POSTGRES_DB || 'getfitter_node_db',
@@ -9,7 +10,7 @@ const sequelize = new Sequelize(
     host: config.POSTGRES_HOST || 'localhost',
     dialect: config.DB_TYPE,
     port: config.POSTGRES_PORT || 5432,
-    logging: config.NODE_ENV === 'development' ? console.log : false,
+    logging: config.NODE_ENV === 'development' ? logger.debug.bind(logger) : false,
   }
 );
 

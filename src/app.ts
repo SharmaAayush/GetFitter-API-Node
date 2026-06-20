@@ -9,6 +9,7 @@ import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
 import { initAssociations } from './config/model-associations';
+import logger from './services/logger';
 
 class App {
   public app: express.Application;
@@ -52,16 +53,16 @@ class App {
       await sequelize.authenticate();
       initAssociations();
     } catch (error) {
-      console.error('Unable to connect to the database:', error);
+      logger.error('Unable to connect to the database:', error);
       process.exit(1);
     }
   }
 
   public start(): void {
     this.app.listen(config.PORT, () => {
-      console.log('Server is running on port ' + config.PORT);
-      console.log(`Environment: ${config.NODE_ENV}`);
-      console.log(`Database type: ${config.DB_TYPE}`);
+      logger.info('Server is running on port ' + config.PORT);
+      logger.info(`Environment: ${config.NODE_ENV}`);
+      logger.info(`Database type: ${config.DB_TYPE}`);
     });
   }
 
