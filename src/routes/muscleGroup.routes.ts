@@ -1,4 +1,4 @@
-import { MuscleGroupController } from "@/controllers/muscleGroupController";
+import { MuscleGroupController } from "@/controllers/muscleGroup.controller";
 import { Router } from "express";
 
 const router = Router();

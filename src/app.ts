@@ -4,7 +4,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 
 import config from '@/config/env';
-import healthRoutes from '@/routes/health';
+import healthRoutes from '@/routes/health.routes';
 import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';

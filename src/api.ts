@@ -1,7 +1,7 @@
 import { Router } from "express";
-import equipmentRoutes from '@/routes/equipmentRoutes';
-import bodyPartCategoryRoutes from '@/routes/bodyPartCategoryRoutes';
-import muscleGroupRoutes from '@/routes/muscleGroupRoutes';
+import equipmentRoutes from '@/routes/equipment.routes';
+import bodyPartCategoryRoutes from '@/routes/bodyPartCategory.routes';
+import muscleGroupRoutes from '@/routes/muscleGroup.routes';
 
 const router = Router();
 

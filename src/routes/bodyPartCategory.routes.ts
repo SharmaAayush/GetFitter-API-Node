@@ -1,4 +1,4 @@
-import { BodyPartCategoryController } from "@/controllers/bodyPartCategoryController";
+import { BodyPartCategoryController } from "@/controllers/bodyPartCategory.controller";
 import { Router } from "express";
 
 const router = Router();

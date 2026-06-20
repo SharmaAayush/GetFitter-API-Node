@@ -1,4 +1,4 @@
-import { EquipmentController } from "@/controllers/equipmentController";
+import { EquipmentController } from "@/controllers/equipment.controller";
 import { Router } from "express";
 
 const router = Router();
