@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 import { uuidv7 } from 'uuidv7';
 
-import Mechanic from '@/models/mechanic';
+import Mechanic from '@/models/mechanic.model';
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {

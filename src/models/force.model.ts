@@ -2,13 +2,15 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
-import { addShareCodeToModel } from "@/services/shareCode.service";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { addShareCodeToModel } from "@/services/shareCode.service";
+import { Exercise } from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
-export class Category extends Model<FilterAttributes, FilterCreationAttributes> {
+@ModelWithAssociations()
+export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -16,7 +18,7 @@ export class Category extends Model<FilterAttributes, FilterCreationAttributes> 
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
 
-  static prefix = 'CATG';
+  static prefix = 'FORC';
 
   async transform(): Promise<FilterModelResponse> {
     const response: FilterModelResponse = {
@@ -27,8 +29,7 @@ export class Category extends Model<FilterAttributes, FilterCreationAttributes> 
   }
 
   public static initializeModel() {
-
-    Category.init(
+    Force.init(
       {
         id: {
           type: DataTypes.UUID,
@@ -63,24 +64,28 @@ export class Category extends Model<FilterAttributes, FilterCreationAttributes> 
       },
       {
         sequelize,
-        tableName: 'Categories',
+        tableName: 'Forces',
         paranoid: true, // Enable paranoid mode for soft deletes
         hooks: {
-          beforeCreate: (equipment: Category) => {
-            addShareCodeToModel(equipment, Category.prefix);
+          beforeCreate: (equipment: Force) => {
+            addShareCodeToModel(equipment, Force.prefix);
           },
-          beforeBulkCreate: (equipments: Category[]) => {
+          beforeBulkCreate: (equipments: Force[]) => {
             // Support bulk operations safely for seeders
             for (const equipment of equipments) {
-              addShareCodeToModel(equipment, Category.prefix);
+              addShareCodeToModel(equipment, Force.prefix);
             }
           }
         },
       }
     );
   }
+
+  public static associate() {
+    Force.hasMany(Exercise, { foreignKey: 'forceId', onDelete: 'CASCADE' })
+  }
 }
 
-Category.initializeModel();
+Force.initializeModel();
 
-export default Category;
+export default Force;

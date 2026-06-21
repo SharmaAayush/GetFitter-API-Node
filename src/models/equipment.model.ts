@@ -2,12 +2,14 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
 import { addShareCodeToModel } from "@/services/shareCode.service";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { Exercise } from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
+@ModelWithAssociations()
 export class Equipment extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
@@ -78,6 +80,10 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
         },
       }
     );
+  }
+
+  public static associate() {
+    Equipment.hasMany(Exercise, { foreignKey: 'equipmentId', onDelete: 'CASCADE' });
   }
 }
 

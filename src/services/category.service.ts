@@ -1,5 +1,5 @@
 import { FilterService } from "@/helpers/filter.service";
-import Category from "@/models/category";
+import Category from "@/models/category.model";
 
 export class CategoryService extends FilterService {
   override className: string = 'CategoryService';

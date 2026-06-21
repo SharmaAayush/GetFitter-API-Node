@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 import { uuidv7 } from 'uuidv7';
 
-import Level from '@/models/level';
+import Level from '@/models/level.model';
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {

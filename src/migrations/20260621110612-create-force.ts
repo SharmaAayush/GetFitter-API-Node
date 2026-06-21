@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 import { uuidv7 } from 'uuidv7';
 
-import Force from '@/models/force';
+import Force from '@/models/force.model';
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {

@@ -2,13 +2,15 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
-import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
 import { addShareCodeToModel } from "@/services/shareCode.service";
+import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { Exercise } from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
-export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
+@ModelWithAssociations()
+export class Category extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -16,7 +18,7 @@ export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
 
-  static prefix = 'LVL';
+  static prefix = 'CATG';
 
   async transform(): Promise<FilterModelResponse> {
     const response: FilterModelResponse = {
@@ -27,7 +29,8 @@ export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
   }
 
   public static initializeModel() {
-    Level.init(
+
+    Category.init(
       {
         id: {
           type: DataTypes.UUID,
@@ -62,24 +65,28 @@ export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
       },
       {
         sequelize,
-        tableName: 'Levels',
+        tableName: 'Categories',
         paranoid: true, // Enable paranoid mode for soft deletes
         hooks: {
-          beforeCreate: (equipment: Level) => {
-            addShareCodeToModel(equipment, Level.prefix);
+          beforeCreate: (equipment: Category) => {
+            addShareCodeToModel(equipment, Category.prefix);
           },
-          beforeBulkCreate: (equipments: Level[]) => {
+          beforeBulkCreate: (equipments: Category[]) => {
             // Support bulk operations safely for seeders
             for (const equipment of equipments) {
-              addShareCodeToModel(equipment, Level.prefix);
+              addShareCodeToModel(equipment, Category.prefix);
             }
           }
         },
       }
     );
   }
+
+  public static associate() {
+    Category.hasMany(Exercise, { foreignKey: 'categoryId', onDelete: 'CASCADE' });
+  }
 }
 
-Level.initializeModel();
+Category.initializeModel();
 
-export default Level;
+export default Category;

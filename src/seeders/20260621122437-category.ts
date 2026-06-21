@@ -1,5 +1,5 @@
 import exerciseData from '../../submodules/free-exercise-db/dist/exercises.json';
-import Category from "@/models/category";
+import Category from "@/models/category.model";
 
 const categories = [...new Set(exerciseData.map(ex => ex.category))];
 

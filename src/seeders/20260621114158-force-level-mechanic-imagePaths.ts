@@ -1,8 +1,8 @@
 import exerciseData from '../../submodules/free-exercise-db/dist/exercises.json';
-import Force from "@/models/force";
-import Level from "@/models/level";
-import Mechanic from "@/models/mechanic";
-import ImagePath from "@/models/image-path";
+import Force from "@/models/force.model";
+import Level from "@/models/level.model";
+import Mechanic from "@/models/mechanic.model";
+import ImagePath from "@/models/image-path.model";
 
 const forces = [...new Set(exerciseData.map(ex => ex.force))].filter(force => force !== null);
 const levels = [...new Set(exerciseData.map(ex => ex.level))];

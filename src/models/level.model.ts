@@ -2,13 +2,15 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 import { addShareCodeToModel } from "@/services/shareCode.service";
+import { Exercise } from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
-export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
+@ModelWithAssociations()
+export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -16,7 +18,7 @@ export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
 
-  static prefix = 'FORC';
+  static prefix = 'LVL';
 
   async transform(): Promise<FilterModelResponse> {
     const response: FilterModelResponse = {
@@ -27,7 +29,7 @@ export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
   }
 
   public static initializeModel() {
-    Force.init(
+    Level.init(
       {
         id: {
           type: DataTypes.UUID,
@@ -62,24 +64,28 @@ export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
       },
       {
         sequelize,
-        tableName: 'Forces',
+        tableName: 'Levels',
         paranoid: true, // Enable paranoid mode for soft deletes
         hooks: {
-          beforeCreate: (equipment: Force) => {
-            addShareCodeToModel(equipment, Force.prefix);
+          beforeCreate: (equipment: Level) => {
+            addShareCodeToModel(equipment, Level.prefix);
           },
-          beforeBulkCreate: (equipments: Force[]) => {
+          beforeBulkCreate: (equipments: Level[]) => {
             // Support bulk operations safely for seeders
             for (const equipment of equipments) {
-              addShareCodeToModel(equipment, Force.prefix);
+              addShareCodeToModel(equipment, Level.prefix);
             }
           }
         },
       }
     );
   }
+
+  public static associate() {
+    Level.hasMany(Exercise, { foreignKey: 'levelId', onDelete: 'CASCADE' });
+  }
 }
 
-Force.initializeModel();
+Level.initializeModel();
 
-export default Force;
+export default Level;

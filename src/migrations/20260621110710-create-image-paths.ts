@@ -1,7 +1,7 @@
 import { QueryInterface, DataTypes } from 'sequelize';
 import { uuidv7 } from 'uuidv7';
 
-import ImagePath from '@/models/image-path';
+import ImagePath from '@/models/image-path.model';
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {

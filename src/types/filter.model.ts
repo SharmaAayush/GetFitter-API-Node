@@ -1,6 +1,6 @@
 import { Optional } from "sequelize";
 
-// Define the attributes for the Equipment model
+// Define the attributes for the Filter model
 export interface FilterAttributes {
   id: string;
   name: string;
@@ -10,7 +10,7 @@ export interface FilterAttributes {
   deletedAt?: Date | null;
 }
 
-// Define which attributes are optional when creating an Equipment instance
+// Define which attributes are optional when creating an Filter instance
 export type FilterCreationAttributes = Optional<FilterAttributes, 'id' | 'shareCode' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
 export interface FilterModelResponse {
