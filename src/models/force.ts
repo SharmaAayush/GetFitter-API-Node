@@ -3,12 +3,12 @@ import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
 import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
-import { addShareCodeToModel } from "@/services/shareCode.service";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { addShareCodeToModel } from "@/services/shareCode.service";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
-export class Equipment extends Model<FilterAttributes, FilterCreationAttributes> {
+export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -16,7 +16,7 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
 
-  static prefix = 'EQPM';
+  static prefix = 'FORC';
 
   async transform(): Promise<FilterModelResponse> {
     const response: FilterModelResponse = {
@@ -27,8 +27,7 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
   }
 
   public static initializeModel() {
-
-    Equipment.init(
+    Force.init(
       {
         id: {
           type: DataTypes.UUID,
@@ -63,16 +62,16 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
       },
       {
         sequelize,
-        tableName: 'Equipments',
+        tableName: 'Forces',
         paranoid: true, // Enable paranoid mode for soft deletes
         hooks: {
-          beforeCreate: (equipment: Equipment) => {
-            addShareCodeToModel(equipment, Equipment.prefix);
+          beforeCreate: (equipment: Force) => {
+            addShareCodeToModel(equipment, Force.prefix);
           },
-          beforeBulkCreate: (equipments: Equipment[]) => {
+          beforeBulkCreate: (equipments: Force[]) => {
             // Support bulk operations safely for seeders
             for (const equipment of equipments) {
-              addShareCodeToModel(equipment, Equipment.prefix);
+              addShareCodeToModel(equipment, Force.prefix);
             }
           }
         },
@@ -81,6 +80,6 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
   }
 }
 
-Equipment.initializeModel();
+Force.initializeModel();
 
-export default Equipment;
+export default Force;

@@ -1,27 +1,14 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
 import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
 import { addShareCodeToModel } from "@/services/shareCode.service";
-import { MuscleGroupResponse } from "@/types/DTOs/muscleGroup";
+import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 
-// Define the attributes for the Equipment model
-export interface MuscleGroupAttributes {
-  id: string;
-  name: string;
-  shareCode: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date | null;
-}
-
-// Define which attributes are optional when creating an Equipment instance
-export type MuscleGroupCreationAttributes = Optional<MuscleGroupAttributes, 'id' | 'shareCode' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
-
-@ModelWithTransformation<MuscleGroupResponse>()
+@ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
-export class MuscleGroup extends Model<MuscleGroupAttributes, MuscleGroupCreationAttributes> {
+export class MuscleGroup extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -31,8 +18,8 @@ export class MuscleGroup extends Model<MuscleGroupAttributes, MuscleGroupCreatio
 
   static prefix = 'MSCL';
 
-  async transform(): Promise<MuscleGroupResponse> {
-    const response: MuscleGroupResponse = {
+  async transform(): Promise<FilterModelResponse> {
+    const response: FilterModelResponse = {
       id: this.shareCode,
       name: this.name,
     }

@@ -2,9 +2,8 @@ import { MuscleGroupController } from "@/controllers/muscleGroup.controller";
 import { Router } from "express";
 
 const router = Router();
+const controller = new MuscleGroupController();
 
-router.get('/', MuscleGroupController.getAll);
-
-router.get('/:id', MuscleGroupController.getById);
+router.get('/', controller.getAll);
 
 export default router;

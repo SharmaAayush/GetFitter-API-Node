@@ -1,7 +1,8 @@
-import MuscleGroup, { MuscleGroupCreationAttributes } from "@/models/musclegroup.model";
+import MuscleGroup from "@/models/musclegroup.model";
 import { Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/lib/utils";
 import exerciseData from '../../submodules/free-exercise-db/dist/exercises.json';
+import { FilterCreationAttributes } from "@/types/filter.model";
 
 const seedData = [
   ...new Set(
@@ -13,7 +14,7 @@ const seedData = [
 
 module.exports = {
   async up() {
-    const mappedSeedData: readonly Optional<MuscleGroupCreationAttributes, NullishPropertiesOf<MuscleGroupCreationAttributes>>[] = seedData.map(muscleGroup => ({
+    const mappedSeedData: readonly Optional<FilterCreationAttributes, NullishPropertiesOf<FilterCreationAttributes>>[] = seedData.map(muscleGroup => ({
       name: muscleGroup,
     }));
     await MuscleGroup.bulkCreate(mappedSeedData);

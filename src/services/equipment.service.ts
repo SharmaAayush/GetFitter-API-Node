@@ -1,68 +1,7 @@
 import Equipment from "@/models/equipment.model";
-import { errAsync, okAsync } from "neverthrow";
-import logger from "@/services/logger";
-import { EquipmentResponse } from "@/types/DTOs/equipment";
-import { transformModelArr } from "@/services/util";
-import { decodeShareCodeToUuid } from "./shareCode.service";
+import { FilterService } from "@/helpers/filter.service";
 
-export class EquipmentService {
-  static async getAll() {
-    try {
-      const equipments = await Equipment.findAll({
-        order: [['name', 'ASC']], // Order by name in ascending order
-      });
-
-      const data: EquipmentResponse[] = await transformModelArr(equipments);
-
-      return okAsync(data);
-    } catch (error) {
-      logger.error('EquipmentService.getAllEquipment: Error fetching equipment');
-      logger.debug(error);
-      return errAsync({
-        reason: 'INTERNAL_SERVER_ERROR',
-        details: error,
-      } as const);
-    }
-  }
-
-  static async getById(id?: string) {
-    try {
-      if (!id) {
-        logger.warn('EquipmentService.getById: No equipment ID provided');
-        return errAsync({
-          reason: 'BAD_REQUEST',
-          details: 'Equipment ID is required',
-        } as const);
-      }
-
-      const uuid = decodeShareCodeToUuid(id, Equipment.prefix);
-      if (!uuid) {
-        logger.warn(`EquipmentService.getById: Invalid share code format for ID ${id}`);
-        return errAsync({
-          reason: 'BAD_REQUEST',
-          details: `Invalid share code format for ID ${id}`,
-        } as const);
-      }
-
-      const equipment = await Equipment.findByPk(uuid);
-
-      if (!equipment) {
-        logger.warn(`EquipmentService.getById: Equipment with ID ${id} not found`);
-
-        return errAsync({
-          reason: 'NOT_FOUND',
-          details: `Equipment with ID ${id} not found`,
-        } as const);
-      }
-
-      return okAsync(await equipment.transform());
-    } catch (error) {
-      logger.error('EquipmentService.getById: Error fetching equipment');
-      logger.debug(error);
-      return errAsync({
-        reason: 'INTERNAL_SERVER_ERROR',
-        details: error,
-      } as const);
-    }
-  }
+export class EquipmentService extends FilterService {
+  override className: string = 'EquipmentService';
+  override model = Equipment;
 }

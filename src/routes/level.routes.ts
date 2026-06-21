@@ -1,8 +1,8 @@
-import { EquipmentController } from "@/controllers/equipment.controller";
+import { LevelController } from "@/controllers/level.controller";
 import { Router } from "express";
 
 const router = Router();
-const controller = new EquipmentController();
+const controller = new LevelController();
 
 router.get('/', controller.getAll);
 
