@@ -8,9 +8,8 @@ import healthRoutes from '@/routes/health.routes';
 import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
-import { initAssociations } from '@/config/model-associations';
 import logger from '@/services/logger';
-import { initializeModels } from '@/config/model-initialization';
+import { loadAndInitializeModels } from './models';
 
 class App {
   public app: express.Application;
@@ -25,8 +24,7 @@ class App {
   }
 
   private configureModels(): void {
-    initializeModels();
-    initAssociations();
+    loadAndInitializeModels();
   }
 
   private configureMiddlewares(): void {
