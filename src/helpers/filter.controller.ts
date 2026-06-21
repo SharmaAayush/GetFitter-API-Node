@@ -6,6 +6,7 @@ import { FilterService } from '@/helpers/filter.service';
 
 export abstract class FilterController {
   abstract service: FilterService;
+  abstract entityName: string;
 
   async getAll(_req: Request, res: Response): Promise<void> {
     const result = await this.service.getAll();
@@ -14,7 +15,7 @@ export abstract class FilterController {
       async records => {
         res.json({
           success: true,
-          message: 'Equipment list fetched successfully',
+          message: `${this.entityName} list fetched successfully`,
           data: records,
         } satisfies ApiSuccessResponse<FilterModelResponse[]>);
       },
@@ -29,7 +30,7 @@ export abstract class FilterController {
             } satisfies ApiErrorResponse<unknown>);
             break;
           default:
-            logger.error(`Error fetching Equipment list: ${reason satisfies never}`);
+            logger.error(`Error fetching ${this.entityName} list: ${reason satisfies never}`);
             res.status(500).json({
               success: false,
               message: 'Internal server error',

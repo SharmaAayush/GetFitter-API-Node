@@ -4,6 +4,6 @@ import { Router } from "express";
 const router = Router();
 const controller = new MechanicController();
 
-router.get('/', controller.getAll);
+router.get('/', controller.getAll.bind(controller));
 
 export default router;
