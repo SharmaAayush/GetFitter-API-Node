@@ -1,4 +1,5 @@
 import { Router } from "express";
+import categoryRoutes from '@/routes/category.routes';
 import equipmentRoutes from '@/routes/equipment.routes';
 import forceRoutes from '@/routes/force.routes';
 import levelRoutes from '@/routes/level.routes';
@@ -7,6 +8,8 @@ import muscleGroupRoutes from '@/routes/muscleGroup.routes';
 
 const router = Router();
 
+// Category routes
+router.use('/categories', categoryRoutes);
 // Equipment routes
 router.use('/equipments', equipmentRoutes);
 // Force routes
