@@ -1,22 +1,21 @@
-import Equipment from "@/models/equipment.model";
+import MuscleGroup from "@/models/musclegroup.model";
+import { transformModelArr } from "@/services/util";
 import { errAsync, okAsync } from "neverthrow";
 import logger from "@/services/logger";
-import { EquipmentResponse } from "@/types/DTOs/equipment";
-import { transformModelArr } from "@/services/util";
 import { decodeShareCodeToUuid } from "./shareCode.service";
 
-export class EquipmentService {
+export class MuscleGroupService {
   static async getAll() {
     try {
-      const equipments = await Equipment.findAll({
+      const muscleGroups = await MuscleGroup.findAll({
         order: [['name', 'ASC']], // Order by name in ascending order
       });
 
-      const data: EquipmentResponse[] = await transformModelArr(equipments);
+      const data = await transformModelArr(muscleGroups);
 
       return okAsync(data);
     } catch (error) {
-      logger.error('EquipmentService.getAllEquipment: Error fetching equipment');
+      logger.error('MuscleGroupService.getAll: Error fetching MuscleGroup');
       logger.debug(error);
       return errAsync({
         reason: 'INTERNAL_SERVER_ERROR',
@@ -28,36 +27,36 @@ export class EquipmentService {
   static async getById(id?: string) {
     try {
       if (!id) {
-        logger.warn('EquipmentService.getById: No equipment ID provided');
+        logger.warn('MuscleGroupService.getById: No MuscleGroup ID provided');
         return errAsync({
           reason: 'BAD_REQUEST',
-          details: 'Equipment ID is required',
+          details: 'MuscleGroup ID is required',
         } as const);
       }
 
-      const uuid = decodeShareCodeToUuid(id, Equipment.prefix);
+      const uuid = decodeShareCodeToUuid(id, MuscleGroup.prefix);
       if (!uuid) {
-        logger.warn(`EquipmentService.getById: Invalid share code format for ID ${id}`);
+        logger.warn(`MuscleGroupService.getById: Invalid share code format for ID ${id}`);
         return errAsync({
           reason: 'BAD_REQUEST',
           details: `Invalid share code format for ID ${id}`,
         } as const);
       }
 
-      const equipment = await Equipment.findByPk(uuid);
+      const bodyPartCategory = await MuscleGroup.findByPk(uuid);
 
-      if (!equipment) {
-        logger.warn(`EquipmentService.getById: Equipment with ID ${id} not found`);
+      if (!bodyPartCategory) {
+        logger.warn(`MuscleGroupService.getById: MuscleGroup with ID ${id} not found`);
 
         return errAsync({
           reason: 'NOT_FOUND',
-          details: `Equipment with ID ${id} not found`,
+          details: `MuscleGroup with ID ${id} not found`,
         } as const);
       }
 
-      return okAsync(await equipment.transform());
+      return okAsync(await bodyPartCategory.transform());
     } catch (error) {
-      logger.error('EquipmentService.getById: Error fetching equipment');
+      logger.error('MuscleGroupService.getById: Error fetching MuscleGroup');
       logger.debug(error);
       return errAsync({
         reason: 'INTERNAL_SERVER_ERROR',

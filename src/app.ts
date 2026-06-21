@@ -9,7 +9,7 @@ import apiRoutes from '@/api';
 import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
 import logger from '@/services/logger';
-import { loadAndInitializeModels } from './models';
+import { loadAndInitializeModels } from '@/models';
 
 class App {
   public app: express.Application;

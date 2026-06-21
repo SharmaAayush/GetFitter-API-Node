@@ -2,11 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 import logger from '@/services/logger';
-import { IModelWithAssociations, IModelWithInitialization } from '@/types/base.models';
-
-const initializeModels = (models: IModelWithInitialization[]) => {
-  models.forEach(model => model.initializeModel());
-}
+import { IModelWithAssociations } from '@/types/base.models';
 
 const associateModels = (models: IModelWithAssociations[]) => {
   models.forEach(model => model.associate());
@@ -20,8 +16,7 @@ export async function loadAndInitializeModels(): Promise<void> {
   // 2. Read all files in the directory
   const files = fs.readdirSync(modelsDir);
 
-  // 3. Prepare arrays for initializable and associatable models
-  const initializableModels: IModelWithInitialization[] = [];
+  // 3. Prepare arrays for associatable models
   const associatableModels: IModelWithAssociations[] = [];
 
   for (const file of files) {
@@ -43,10 +38,6 @@ export async function loadAndInitializeModels(): Promise<void> {
         // 6. Dynamically import the module using the absolute path
         const modelModule = await import(fullPath);
 
-        if (modelModule.default && (modelModule.default as IModelWithInitialization).initializeModel) {
-          initializableModels.push(modelModule.default as IModelWithInitialization);
-        }
-
         if (modelModule.default && (modelModule.default as IModelWithAssociations).associate) {
           associatableModels.push(modelModule.default as IModelWithAssociations);
         }
@@ -56,6 +47,5 @@ export async function loadAndInitializeModels(): Promise<void> {
     }
   }
 
-  initializeModels(initializableModels);
   associateModels(associatableModels);
 }

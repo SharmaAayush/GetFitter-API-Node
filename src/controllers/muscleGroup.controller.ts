@@ -1,97 +1,86 @@
 import { Request, Response } from 'express';
-import MuscleGroup from '@/models/musclegroup.model';
-import BodyPartCategory from '@/models/bodypartcategory.model';
 import logger from '@/services/logger';
+import { MuscleGroupService } from '@/services/muscleGroup.service';
+import { ApiErrorResponse, ApiSuccessResponse } from '@/types/response';
+import { MuscleGroupResponse } from '@/types/DTOs/muscleGroup';
 
 export class MuscleGroupController {
   static async getAll(_req: Request, res: Response): Promise<void> {
-    try {
-      const muscleGroups = await MuscleGroup.findAll({
-        attributes: ['id', 'name', 'description'], // Select specific attributes
-        order: [['name', 'ASC']], // Order by name in ascending order
-        include: {
-          // Include body part category information
-          model: BodyPartCategory,
-          attributes: ['id', 'name'],
-        },
-      });
-      res.json({
-        success: true,
-        data: muscleGroups,
-        message: 'Muscle groups fetched successfully',
-      });
-    } catch (error) {
-      logger.error('MuscleGrouptController.getAll: Error fetching muscle groups');
-      logger.debug(error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to fetch muscle groups',
-        },
-        data: null,
-      });
-    }
+    const result = await MuscleGroupService.getAll();
+
+    result.match(
+      async muscleGroups => {
+        res.json({
+          success: true,
+          data: muscleGroups,
+          message: 'MuscleGroup list fetched successfully',
+        } satisfies ApiSuccessResponse<MuscleGroupResponse[]>);
+      },
+      error => {
+        const reason = error.reason;
+
+        switch (reason) {
+          case 'INTERNAL_SERVER_ERROR':
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse<unknown>);
+            break;
+          default:
+            logger.error(`Error fetching MuscleGroup list: ${reason satisfies never}`);
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse<unknown>);
+            break;
+        }
+      }
+    );
   }
 
-  static async getById(req: Request, res: Response): Promise<void> {
-    try {
-      const { id } = req.params;
+  static async getById(req: Request<{ id?: string }>, res: Response): Promise<void> {
+    const { id } = req.params;
+    const result = await MuscleGroupService.getById(id);
 
-      if (!id) {
-        logger.warn('MuscleGrouptController.getById: No muscle group ID provided');
-        res.status(400).json({
-          success: false,
-          error: {
-            code: 'BAD_REQUEST',
-            message: 'Muscle group ID is required',
-          },
-          data: null,
-        });
-        return;
-      }
+    result.match(
+      async muscleGroup => {
+        res.status(200).json({
+          success: true,
+          data: muscleGroup,
+          message: `Successfully retrieved MuscleGroup with ID ${id}`
+        } satisfies ApiSuccessResponse<MuscleGroupResponse>);
+      },
+      error => {
+        const reason = error.reason;
 
-      const muscleGroup = await MuscleGroup.findByPk(
-        id as string,
-        {
-          attributes: ['id', 'name', 'description'],
-          include: {
-            // Include body part category information
-            model: BodyPartCategory,
-            attributes: ['id', 'name'],
-          },
+        switch (reason) {
+          case 'BAD_REQUEST':
+            res.status(400).json({
+              success: false,
+              message: `Invalid MuscleGroup ID provided`,
+            } satisfies ApiErrorResponse<unknown>);
+            break;
+          case 'NOT_FOUND':
+            res.status(404).json({
+              success: false,
+              message: `MuscleGroup with ID ${id} not found`,
+            } satisfies ApiErrorResponse<unknown>);
+            break;
+          case 'INTERNAL_SERVER_ERROR':
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse<unknown>);
+            break;
+          default:
+            logger.error(`Error fetching MuscleGroup by ID: ${reason satisfies never}`);
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse<unknown>);
+            break;
         }
-      );
-
-      if (!muscleGroup) {
-        logger.warn(`MuscleGrouptController.getById: Muscle group with ID ${id} not found`);
-        res.status(404).json({
-          success: false,
-          error: {
-            code: 'NOT_FOUND',
-            message: `Muscle group with ID ${id} not found`,
-          },
-          data: null,
-        });
-        return;
       }
-
-      res.status(200).json({
-        success: true,
-        data: muscleGroup,
-        message: `Successfully retrieved muscle group with ID ${id}`
-      });
-    } catch (error) {
-      logger.error('MuscleGrouptController.getById: Error fetching muscle group');
-      logger.debug(error);
-      res.status(500).json({
-        success: false,
-        error: {
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Failed to fetch muscle group',
-        },
-        data: null,
-      });
-    }
+    )
   }
 }

@@ -7,7 +7,7 @@ export interface IModelWithInitialization {
 }
 
 export interface IModelWithTransformation<T> {
-  transform(): T;
+  transform(): Promise<T>;
 }
 
 export function ModelWithAssociations<T extends IModelWithAssociations>() {

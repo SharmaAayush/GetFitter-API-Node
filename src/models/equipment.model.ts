@@ -2,35 +2,40 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { EquipmentResponse } from "@/types/equipment";
+import { EquipmentResponse } from "@/types/DTOs/equipment";
 import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { addShareCodeToModel } from "@/services/shareCode.service";
 
 // Define the attributes for the Equipment model
 interface EquipmentAttributes {
   id: string;
   name: string;
   description?: string;
+  shareCode: string;
   createdAt?: Date;
   updatedAt?: Date;
   deletedAt?: Date | null;
 }
 
 // Define which attributes are optional when creating an Equipment instance
-type EquipmentCreationAttributes = Optional<EquipmentAttributes, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+type EquipmentCreationAttributes = Optional<EquipmentAttributes, 'id' | 'shareCode' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
 
-@ModelWithTransformation()
+@ModelWithTransformation<EquipmentResponse>()
 @ModelWithInitialization()
 export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttributes> {
   declare id: string;
   declare name: string;
   declare description?: string;
+  declare shareCode: string;
   declare createdAt: Date;
   declare updatedAt: Date;
   declare deletedAt?: Date | null;
 
-  transform(): EquipmentResponse {
+  static prefix = 'EQPM';
+
+  async transform(): Promise<EquipmentResponse> {
     const response: EquipmentResponse = {
-      id: this.id,
+      id: this.shareCode,
       name: this.name,
     };
     if (this.description) response.description = this.description;
@@ -57,6 +62,11 @@ export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttri
           type: DataTypes.TEXT,
           allowNull: true,
         },
+        shareCode: {
+          type: DataTypes.STRING,
+          allowNull: false,
+          unique: true,
+        },
         createdAt: {
           type: DataTypes.DATE,
           allowNull: false,
@@ -75,9 +85,22 @@ export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttri
         sequelize,
         tableName: 'Equipments',
         paranoid: true, // Enable paranoid mode for soft deletes
+        hooks: {
+          beforeCreate: (equipment: Equipment) => {
+            addShareCodeToModel(equipment, Equipment.prefix);
+          },
+          beforeBulkCreate: (equipments: Equipment[]) => {
+            // Support bulk operations safely for seeders
+            for (const equipment of equipments) {
+              addShareCodeToModel(equipment, Equipment.prefix);
+            }
+          }
+        },
       }
     );
   }
 }
+
+Equipment.initializeModel();
 
 export default Equipment;

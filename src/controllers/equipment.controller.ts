@@ -2,18 +2,18 @@ import { Request, Response } from 'express';
 import logger from '@/services/logger';
 import { EquipmentService } from '@/services/equipment.service';
 import { ApiErrorResponse, ApiSuccessResponse } from '@/types/response';
-import { EquipmentResponse } from '@/types/equipment';
+import { EquipmentResponse } from '@/types/DTOs/equipment';
 
 export class EquipmentController {
   static async getAll(_req: Request, res: Response): Promise<void> {
     const result = await EquipmentService.getAll();
 
     result.match(
-      equipment => {
+      async equipments => {
         res.json({
           success: true,
           message: 'Equipment list fetched successfully',
-          data: equipment.map(eq => eq.transform()),
+          data: equipments,
         } satisfies ApiSuccessResponse<EquipmentResponse[]>);
       },
       error => {
@@ -27,7 +27,7 @@ export class EquipmentController {
             } satisfies ApiErrorResponse<unknown>);
             break;
           default:
-            logger.error(`Error fetching equipment: ${reason satisfies never}`);
+            logger.error(`Error fetching Equipment list: ${reason satisfies never}`);
             res.status(500).json({
               success: false,
               message: 'Internal server error',
@@ -43,11 +43,11 @@ export class EquipmentController {
     const result = await EquipmentService.getById(id);
 
     result.match(
-      equipment => {
+      async equipment => {
         res.status(200).json({
           success: true,
-          data: equipment.transform(),
-          message: `Successfully retrieved equipment with ID ${id}`
+          data: equipment,
+          message: `Successfully retrieved Equipment with ID ${id}`
         } satisfies ApiSuccessResponse<EquipmentResponse>);
       },
       error => {
@@ -55,10 +55,9 @@ export class EquipmentController {
 
         switch (reason) {
           case 'BAD_REQUEST':
-            logger.warn('EquipmentController.getEquipmentById: Invalid equipment ID provided');
             res.status(400).json({
               success: false,
-              message: `Invalid equipment ID provided`,
+              message: `Invalid Equipment ID provided`,
             } satisfies ApiErrorResponse<unknown>);
             break;
           case 'NOT_FOUND':
@@ -74,7 +73,7 @@ export class EquipmentController {
             } satisfies ApiErrorResponse<unknown>);
             break;
           default:
-            logger.error(`Error fetching equipment by ID: ${reason satisfies never}`);
+            logger.error(`Error fetching Equipment by ID: ${reason satisfies never}`);
             res.status(500).json({
               success: false,
               message: 'Internal server error',
