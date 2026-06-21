@@ -1,6 +1,5 @@
 'use strict';
 
-import BodyPartCategory from "@/models/bodypartcategory.model";
 import Equipment from "@/models/equipment.model";
 import MuscleGroup from "@/models/musclegroup.model";
 import logger from "@/services/logger";
@@ -58,13 +57,11 @@ async function addShareCodeToEquipments(queryInterface: QueryInterface, model: M
 module.exports = {
   async up(queryInterface: QueryInterface) {
     await addShareCodeToEquipments(queryInterface, Equipment, Equipment.prefix);
-    await addShareCodeToEquipments(queryInterface, BodyPartCategory, BodyPartCategory.prefix);
     await addShareCodeToEquipments(queryInterface, MuscleGroup, MuscleGroup.prefix);
   },
 
   async down(queryInterface: QueryInterface) {
     await queryInterface.removeColumn(Equipment.tableName, 'shareCode');
-    await queryInterface.removeColumn(BodyPartCategory.tableName, 'shareCode');
     await queryInterface.removeColumn(MuscleGroup.tableName, 'shareCode');
   }
 };

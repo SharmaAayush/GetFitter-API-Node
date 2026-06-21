@@ -10,7 +10,6 @@ import { addShareCodeToModel } from "@/services/shareCode.service";
 interface EquipmentAttributes {
   id: string;
   name: string;
-  description?: string;
   shareCode: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -25,7 +24,6 @@ type EquipmentCreationAttributes = Optional<EquipmentAttributes, 'id' | 'shareCo
 export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttributes> {
   declare id: string;
   declare name: string;
-  declare description?: string;
   declare shareCode: string;
   declare createdAt: Date;
   declare updatedAt: Date;
@@ -38,7 +36,6 @@ export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttri
       id: this.shareCode,
       name: this.name,
     };
-    if (this.description) response.description = this.description;
     return response;
   }
 
@@ -57,10 +54,6 @@ export class Equipment extends Model<EquipmentAttributes, EquipmentCreationAttri
           type: DataTypes.STRING,
           allowNull: false,
           unique: true,
-        },
-        description: {
-          type: DataTypes.TEXT,
-          allowNull: true,
         },
         shareCode: {
           type: DataTypes.STRING,

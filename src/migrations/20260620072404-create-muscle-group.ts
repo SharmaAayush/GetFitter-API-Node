@@ -1,7 +1,6 @@
 import { DataTypes, QueryInterface } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
-import BodyPartCategory from "@/models/bodypartcategory.model";
 import MuscleGroup from "@/models/musclegroup.model";
 
 module.exports = {
@@ -18,18 +17,6 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-      },
-      description: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      bodyPartCategoryId: {
-        type: DataTypes.UUID,
-        allowNull: false,
-        references: {
-          model: BodyPartCategory.tableName,
-          key: 'id',
-        }
       },
       createdAt: {
         type: DataTypes.DATE,

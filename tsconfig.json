@@ -16,6 +16,9 @@
 
     "lib": ["ES2022"],
     "types": ["node"],
+    // Add these two lines for JSON imports:
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
