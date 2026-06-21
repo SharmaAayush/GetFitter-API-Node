@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
+import path from 'path';
 
 import config from '@/config/env';
 import healthRoutes from '@/routes/health.routes';
@@ -10,6 +11,7 @@ import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
 import logger from '@/services/logger';
 import { loadAndInitializeModels } from '@/models';
+import { blockJsonFiles } from './middleware/assetMiddleware';
 
 class App {
   public app: express.Application;
@@ -40,6 +42,11 @@ class App {
     // Body parsing middleware
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
+
+    // static assets
+    this.app.use(express.static(path.join(__dirname, '..', 'public')));
+    const targetFolder = path.join(__dirname, '..', 'submodules', 'free-exercise-db', 'exercises');
+    this.app.use('/assets', blockJsonFiles, express.static(targetFolder))
   }
 
   private configureRoutes(): void {

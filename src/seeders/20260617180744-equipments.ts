@@ -1,5 +1,5 @@
 import Equipment from "@/models/equipment.model";
-import exerciseData from '@/submodules/free-exercise-db/dist/exercises.json';
+import exerciseData from '../../submodules/free-exercise-db/dist/exercises.json';
 
 const seedData = [...new Set(exerciseData.map(ex => ex.equipment))].filter(eq => eq !== null);
 

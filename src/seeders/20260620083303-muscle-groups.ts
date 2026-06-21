@@ -1,7 +1,7 @@
 import MuscleGroup, { MuscleGroupCreationAttributes } from "@/models/musclegroup.model";
 import { Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/lib/utils";
-import exerciseData from '@/submodules/free-exercise-db/dist/exercises.json';
+import exerciseData from '../../submodules/free-exercise-db/dist/exercises.json';
 
 const seedData = [
   ...new Set(
