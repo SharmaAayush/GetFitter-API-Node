@@ -2,13 +2,14 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 import { addShareCodeToModel } from "@/services/shareCode.service";
 import { Exercise } from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
+@ModelWithShareCode()
 @ModelWithAssociations()
 export class Force extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;

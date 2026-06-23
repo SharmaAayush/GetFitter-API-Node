@@ -2,12 +2,13 @@ import { DataTypes, Model } from "sequelize";
 import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { addShareCodeToModel } from "@/services/shareCode.service";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
+@ModelWithShareCode()
 export class MuscleGroup extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
   declare name: string;

@@ -19,7 +19,7 @@ export abstract class FilterService {
 
       return okAsync(data);
     } catch (error) {
-      logger.error(`${this.className}.getAll: Error fetching MuscleGroup`);
+      logger.error(`${this.className}.getAll: Error fetching records`);
       logger.debug(error);
       return errAsync({
         reason: 'INTERNAL_SERVER_ERROR',

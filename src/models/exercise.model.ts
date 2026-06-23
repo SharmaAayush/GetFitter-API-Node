@@ -9,7 +9,7 @@ import Mechanic from "@/models/mechanic.model";
 import Category from "@/models/category.model";
 import Equipment from "@/models/equipment.model";
 import { addShareCodeToModel } from "@/services/shareCode.service";
-import { ModelWithAssociations, ModelWithInitialization, ModelWithTransformation } from "@/types/base.models";
+import { ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 
 // Define the attributes for the Exercise model
 export interface ExerciseAttributes {
@@ -44,6 +44,7 @@ export type ExerciseCreationAttributes = Optional<
 
 @ModelWithTransformation<ExerciseModelResponse>()
 @ModelWithInitialization()
+@ModelWithShareCode()
 @ModelWithAssociations()
 export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttributes> {
   declare id: string;

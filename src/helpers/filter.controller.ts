@@ -27,14 +27,14 @@ export abstract class FilterController {
             res.status(500).json({
               success: false,
               message: 'Internal server error',
-            } satisfies ApiErrorResponse<unknown>);
+            } satisfies ApiErrorResponse);
             break;
           default:
             logger.error(`Error fetching ${this.entityName} list: ${reason satisfies never}`);
             res.status(500).json({
               success: false,
               message: 'Internal server error',
-            } satisfies ApiErrorResponse<unknown>);
+            } satisfies ApiErrorResponse);
             break;
         }
       }

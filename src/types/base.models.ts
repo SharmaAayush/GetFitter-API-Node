@@ -6,6 +6,10 @@ export interface IModelWithInitialization {
   initializeModel(): void;
 }
 
+export interface IModelWithShareCode {
+  prefix: string;
+}
+
 export interface IModelWithTransformation<T> {
   transform(): Promise<T>;
 }
@@ -15,6 +19,10 @@ export function ModelWithAssociations<T extends IModelWithAssociations>() {
 }
 
 export function ModelWithInitialization<T extends IModelWithInitialization>() {
+  return (_constructor: T) => {};
+}
+
+export function ModelWithShareCode<T extends IModelWithShareCode>() {
   return (_constructor: T) => {};
 }
 
