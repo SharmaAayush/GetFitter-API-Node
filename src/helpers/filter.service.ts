@@ -4,6 +4,7 @@ import logger from "@/services/logger";
 import { Model, ModelStatic } from "sequelize";
 import { IModelWithTransformation } from "../types/base.models";
 import { FilterModelResponse } from "../types/filter.model";
+import { ERROR_REASONS } from "@/consts/error-reasons";
 
 export abstract class FilterService {
   abstract className: string;
@@ -22,7 +23,7 @@ export abstract class FilterService {
       logger.error(`${this.className}.getAll: Error fetching records`);
       logger.debug(error);
       return errAsync({
-        reason: 'INTERNAL_SERVER_ERROR',
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
         details: error,
       } as const);
     }

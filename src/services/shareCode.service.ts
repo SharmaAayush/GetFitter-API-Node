@@ -46,7 +46,7 @@ export function decodeShareCodeToUuid(shareCode: string, prefix: string): false 
     // Re-insert standard UUID hyphens (8-4-4-4-12)
     return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
   } catch (error) {
-    logger.error('shareCodeService.encodeUuidToShareCode: Error decoding shareCode');
+    logger.error('shareCodeService.decodeShareCodeToUuid: Error decoding shareCode');
     logger.debug(error);
     return false;
   }

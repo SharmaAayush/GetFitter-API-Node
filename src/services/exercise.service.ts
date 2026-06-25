@@ -11,6 +11,7 @@ import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { transformModelArr } from "./util";
 import logger from "./logger";
 import { IModelWithShareCode } from "@/types/base.models";
+import { ERROR_REASONS } from "@/consts/error-reasons";
 
 interface AssociationFilter {
   model: ModelStatic<Model> & IModelWithShareCode;
@@ -59,7 +60,7 @@ export class ExerciseService {
           const uuid = decodeShareCodeToUuid(value, model.prefix);
           if (!uuid) {
             return errAsync({
-              reason: 'BAD_REQUEST',
+              reason: ERROR_REASONS.BAD_REQUEST,
               details: `Invalid id for ${property}`
             } as const)
           }
@@ -141,14 +142,56 @@ export class ExerciseService {
           };
         })(),
         (error) => {
-          logger.error(`ExerciseService.getExercises: Error fetching ExerciseService`);
+          logger.error(`ExerciseService.getExercises: Error fetching Exercise`);
           logger.debug(error);
           return {
-            reason: 'INTERNAL_SERVER_ERROR' as const,
+            reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
             details: error,
           };
         }
       );
     });
+  }
+
+  private async findOneExercise(where: WhereOptions<ExerciseAttributes>) {
+    try {
+      const exercise = await Exercise.findOne({ where, include: [
+        this.buildIncludeForWhere({model: Force}),
+        this.buildIncludeForWhere({model: Level}),
+        this.buildIncludeForWhere({model: Mechanic}),
+        this.buildIncludeForWhere({model: Equipment}),
+        this.buildIncludeForWhere({model: Category}),
+      ] });
+
+      if (!exercise) {
+        return errAsync({
+          reason: ERROR_REASONS.NOT_FOUND,
+          details: 'Exercise not found',
+        } as const);
+      }
+
+      return okAsync(await exercise.transform());
+    } catch (error) {
+      logger.error(`ExerciseService.findOneExercise: Error fetching Exercise`);
+      logger.debug(error);
+      return errAsync({
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
+        details: error,
+      } as const);
+    }
+  }
+
+  async getExerciseByShareCode(shareCode: string) {
+    if (!shareCode?.startsWith(Exercise.prefix)) {
+      return errAsync({
+        reason: ERROR_REASONS.BAD_REQUEST,
+        details: 'Invalid share code',
+      } as const)
+    }
+    return this.findOneExercise({ shareCode });
+  }
+
+  async getExerciseBySlug(slug: string) {
+    return this.findOneExercise({ slug });
   }
 }

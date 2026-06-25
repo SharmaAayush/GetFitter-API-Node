@@ -8,7 +8,7 @@ export class ExerciseController {
   service = new ExerciseService();
 
   async getExercises(req: Request<unknown, unknown, unknown, GetExercisesQuery>, res: Response) {
-    const result = await this.  service.getExercises(req.query);
+    const result = await this.service.getExercises(req.query);
 
     result.match(
       async data => {
@@ -45,5 +45,62 @@ export class ExerciseController {
         }
       }
     );
+  }
+
+  private async getExerciseByProp(serviceMethod: ExerciseService["getExerciseByShareCode"], propValue: string, res: Response) {
+    const result = await serviceMethod(propValue);
+
+    result.match(
+      async data => {
+        res.json({
+          success: true,
+          data,
+          message: `Exercise list fetched successfully`,
+        } satisfies ApiSuccessResponse<ExerciseModelResponse>)
+      },
+      error => {
+        const reason = error.reason;
+
+        switch (reason) {
+          case 'INTERNAL_SERVER_ERROR':
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse);
+            break;
+          case 'NOT_FOUND':
+            res.status(404).json({
+              success: false,
+              message: error.details,
+            } satisfies ApiErrorResponse);
+            break;
+          case 'BAD_REQUEST':
+            res.status(400).json({
+              success: false,
+              message: error.details,
+            } satisfies ApiErrorResponse);
+            break;
+          default:
+            logger.error(`Error fetching Exercise list: ${reason satisfies never}`);
+            res.status(500).json({
+              success: false,
+              message: 'Internal server error',
+            } satisfies ApiErrorResponse);
+            break;
+        }
+      }
+    );
+  }
+
+  async getExerciseByShareCode(req: Request<{ shareCode: string }>, res: Response) {
+    const shareCode = req.params.shareCode;
+    
+    this.getExerciseByProp(this.service.getExerciseByShareCode.bind(this.service), shareCode, res);
+  }
+
+  async getExerciseBySlug(req: Request<{ slug: string }>, res: Response) {
+    const slug = req.params.slug;
+    
+    this.getExerciseByProp(this.service.getExerciseBySlug.bind(this.service), slug, res);
   }
 }
