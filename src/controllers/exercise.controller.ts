@@ -8,7 +8,7 @@ export class ExerciseController {
   service = new ExerciseService();
 
   async getExercises(req: Request<unknown, unknown, unknown, GetExercisesQuery>, res: Response) {
-    const result = await this.service.getExercises(req.query);
+    const result = await this.  service.getExercises(req.query);
 
     result.match(
       async data => {

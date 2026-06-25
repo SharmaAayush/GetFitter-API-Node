@@ -1,6 +1,6 @@
 import Exercise, { ExerciseAttributes } from "@/models/exercise.model";
 import { GetExercisesQuery } from "@/types/exercise.dto";
-import { Op, WhereOptions } from "sequelize";
+import { FindAndCountOptions, IncludeOptions, Model, ModelStatic, Op, WhereOptions } from "sequelize";
 import { decodeShareCodeToUuid } from "@/services/shareCode.service";
 import Force from "@/models/force.model";
 import Level from "@/models/level.model";
@@ -10,100 +10,123 @@ import Category from "@/models/category.model";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
 import { transformModelArr } from "./util";
 import logger from "./logger";
+import { IModelWithShareCode } from "@/types/base.models";
+
+interface AssociationFilter {
+  model: ModelStatic<Model> & IModelWithShareCode;
+  uuid?: string;
+  name?: string;
+}
 
 interface ParsedGetExercisesQuery {
   page: number;
   limit: number;
   offset: number;
   name?: string;
-  forceId?: string;
-  levelId?: string;
-  mechanicId?: string;
-  equipmentId?: string;
-  categoryId?: string;
+  associationFilters: AssociationFilter[];
 }
 
 export class ExerciseService {
   private async parseGetExercisesQuery(query: GetExercisesQuery) {
-    const { page, limit, name, forceId: forceId, levelId: levelId, mechanicId: mechanicId, equipmentId: equipmentId, categoryId: categoryId } = query;
+    const { category, equipment, force, level, limit, mechanic, name, page, } = query;
 
     const parsedPage = Math.max(1, parseInt(page || '1', 10));
     const parsedLimit = Math.max(1, Math.min(100, parseInt(limit || '10', 10)));
     const offset = (parsedPage - 1) * parsedLimit;
 
+    const associationFilters: AssociationFilter[] = [];
+
     const parsedGetExercisesQuery: ParsedGetExercisesQuery = {
       page: parsedPage,
       limit: parsedLimit,
       offset,
+      associationFilters,
     };
     if (name) parsedGetExercisesQuery.name = name;
-    const foreignKeys = [
-      { model: Force, shareCode: forceId, property: 'forceId' as const },
-      { model: Level, shareCode: levelId, property: 'levelId' as const },
-      { model: Mechanic, shareCode: mechanicId, property: 'mechanicId' as const },
-      { model: Equipment, shareCode: equipmentId, property: 'equipmentId' as const },
-      { model: Category, shareCode: categoryId, property: 'categoryId' as const },
+    const queryAssociationFilters = [
+      { model: Force, value: force, property: 'force' },
+      { model: Level, value: level, property: 'level' },
+      { model: Mechanic, value: mechanic, property: 'mechanic' },
+      { model: Equipment, value: equipment, property: 'equipment' },
+      { model: Category, value: category, property: 'category' },
     ]
-    for (const { model, shareCode, property } of foreignKeys) {
-      if (shareCode) {
-        const uuid = decodeShareCodeToUuid(shareCode, model.prefix);
-        if (!uuid) {
-          return errAsync({
-            reason: 'BAD_REQUEST',
-            details: `Invalid id for ${property}`
-          } as const)
+    for (const { model, value, property } of queryAssociationFilters) {
+      const associationFilter: AssociationFilter = {
+        model: model,
+      };
+      if (value) {
+        if (value.startsWith(`${model.prefix}-`)) {
+          const uuid = decodeShareCodeToUuid(value, model.prefix);
+          if (!uuid) {
+            return errAsync({
+              reason: 'BAD_REQUEST',
+              details: `Invalid id for ${property}`
+            } as const)
+          }
+          associationFilter.uuid = uuid;
+        } else {
+          associationFilter.name = value;
         }
-        parsedGetExercisesQuery[property] = uuid;
       }
+      associationFilters.push(associationFilter);
     }
     return okAsync(parsedGetExercisesQuery);
   }
 
-  private buildWhereForGetExercises(query: ParsedGetExercisesQuery): WhereOptions<ExerciseAttributes> {
+  private buildIncludeForWhere(associationConfig: AssociationFilter) {
+    const { model, uuid, name } = associationConfig;
+    const include: IncludeOptions = {
+      model,
+    };
+    const includeWhere: WhereOptions = {};
+    if (uuid) {
+      includeWhere['id'] = uuid;
+    } else if (name) {
+      includeWhere['name'] = name;
+    }
+
+    if (Object.keys(includeWhere).length > 0) {
+      include.where = includeWhere;
+      include.required = true;
+    }
+    return include;
+  }
+
+  private buildOptionsForGetExercises(query: ParsedGetExercisesQuery): FindAndCountOptions<ExerciseAttributes> {
     const {
-      categoryId,
-      equipmentId,
-      forceId,
-      levelId,
-      mechanicId,
       name,
+      associationFilters,
+      limit,
+      offset,
     } = query;
 
     const exerciseWhere: WhereOptions<ExerciseAttributes> = {};
+    const includeOptions = associationFilters.map(associationFilter => {
+      return this.buildIncludeForWhere(associationFilter);
+    });
+    const findAndCountOptions: FindAndCountOptions<ExerciseAttributes> = {
+      limit: limit,
+      offset: offset,
+      order: [['name', 'ASC']],
+      where: exerciseWhere,
+      include: includeOptions,
+    };
 
     if (name) {
       exerciseWhere.name = { [Op.iLike]: `%${name}%` };
     }
 
-    if (forceId) exerciseWhere.forceId = forceId;
-    if (levelId) exerciseWhere.levelId = levelId;
-    if (mechanicId) exerciseWhere.mechanicId = mechanicId;
-    if (equipmentId) exerciseWhere.equipmentId = equipmentId;
-    if (categoryId) exerciseWhere.categoryId = categoryId;
-
-    return exerciseWhere;
+    return findAndCountOptions;
   }
 
   async getExercises(query: GetExercisesQuery) {
     const parsedQueryResult = await this.parseGetExercisesQuery(query)
     return await parsedQueryResult.asyncAndThen((parsedQuery: ParsedGetExercisesQuery) => {
-      const exerciseWhere = this.buildWhereForGetExercises(parsedQuery);
+      const findAndCountAllOptions = this.buildOptionsForGetExercises(parsedQuery);
 
       return ResultAsync.fromPromise(
         (async () => {
-          const { count, rows } = await Exercise.findAndCountAll({
-            where: exerciseWhere,
-            limit: parsedQuery.limit,
-            offset: parsedQuery.offset,
-            order: [['name', 'ASC']],
-            include: [
-              { model: Force, attributes: ['id', 'name'] },
-              { model: Level, attributes: ['id', 'name'] },
-              { model: Mechanic, attributes: ['id', 'name'] },
-              { model: Equipment, attributes: ['id', 'name'] },
-              { model: Category, attributes: ['id', 'name'] },
-            ],
-          });
+          const { count, rows } = await Exercise.findAndCountAll(findAndCountAllOptions);
 
           const data = await transformModelArr(rows);
 

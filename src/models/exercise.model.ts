@@ -82,6 +82,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
     const response: ExerciseModelResponse = {
       id: this.shareCode,
       name: this.name,
+      slug: this.slug,
       force: this.Force?.name || '',
       level: this.Level?.name || '',
       mechanic: this.Mechanic?.name || '',
