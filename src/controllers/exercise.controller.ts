@@ -1,3 +1,4 @@
+import { ERROR_REASONS } from '@/consts/error-reasons';
 import { ExerciseService } from '@/services/exercise.service';
 import logger from '@/services/logger';
 import { ExerciseModelResponse, GetExercisesQuery } from '@/types/exercise.dto';
@@ -23,13 +24,13 @@ export class ExerciseController {
         const reason = error.reason;
 
         switch (reason) {
-          case 'INTERNAL_SERVER_ERROR':
+          case ERROR_REASONS.INTERNAL_SERVER_ERROR:
             res.status(500).json({
               success: false,
               message: 'Internal server error',
             } satisfies ApiErrorResponse);
             break;
-          case 'BAD_REQUEST':
+          case ERROR_REASONS.BAD_REQUEST:
             res.status(400).json({
               success: false,
               message: error.details,
@@ -62,19 +63,19 @@ export class ExerciseController {
         const reason = error.reason;
 
         switch (reason) {
-          case 'INTERNAL_SERVER_ERROR':
+          case ERROR_REASONS.INTERNAL_SERVER_ERROR:
             res.status(500).json({
               success: false,
               message: 'Internal server error',
             } satisfies ApiErrorResponse);
             break;
-          case 'NOT_FOUND':
+          case ERROR_REASONS.NOT_FOUND:
             res.status(404).json({
               success: false,
               message: error.details,
             } satisfies ApiErrorResponse);
             break;
-          case 'BAD_REQUEST':
+          case ERROR_REASONS.BAD_REQUEST:
             res.status(400).json({
               success: false,
               message: error.details,

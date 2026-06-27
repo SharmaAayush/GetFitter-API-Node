@@ -18,11 +18,15 @@ class Config {
   // Logging configuration
   public LOG_LEVEL!: string;
   public CONSOLE_LOGGING!: boolean;
+  // Authentication configuration
+  public JWT_SECRET!: string;
+  public JWT_EXPIRATION_TIME!: number;
 
   constructor() {
     this.setServerConfig();
     this.setDatabaseConfig();
     this.setLoggingConfig();
+    this.setAuthenticationConfig();
   }
 
   private setServerConfig() {
@@ -46,6 +50,11 @@ class Config {
     }
     this.LOG_LEVEL = LOG_LEVEL;
     this.CONSOLE_LOGGING = process.env["CONSOLE_LOGGING"] === 'true' || false;
+  }
+
+  private setAuthenticationConfig() {
+    this.JWT_SECRET = process.env["JWT_SECRET"] || 'FALLBACK_JWT_SECRET_IN_CASE_ONCE_WAS_NOT_PROVIDED';
+    this.JWT_EXPIRATION_TIME = parseInt(process.env["JWT_EXPIRATION_TIME"] || "3600"); // in seconds
   }
 }
 

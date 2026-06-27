@@ -47,7 +47,7 @@ export class Equipment extends Model<FilterAttributes, FilterCreationAttributes>
         },
         shareCode: {
           type: DataTypes.STRING,
-          allowNull: false,
+          allowNull: true, // Keep it false in migration as it is generated in beforeCreate hook
           unique: true,
         },
         createdAt: {

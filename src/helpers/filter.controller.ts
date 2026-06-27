@@ -3,6 +3,7 @@ import logger from '@/services/logger';
 import { ApiErrorResponse, ApiSuccessResponse } from '@/types/response';
 import { FilterModelResponse } from '@/types/filter.model';
 import { FilterService } from '@/helpers/filter.service';
+import { ERROR_REASONS } from '@/consts/error-reasons';
 
 export abstract class FilterController {
   abstract service: FilterService;
@@ -23,7 +24,7 @@ export abstract class FilterController {
         const reason = error.reason;
 
         switch (reason) {
-          case 'INTERNAL_SERVER_ERROR':
+          case ERROR_REASONS.INTERNAL_SERVER_ERROR:
             res.status(500).json({
               success: false,
               message: 'Internal server error',
