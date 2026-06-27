@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { User } from '@/models/user.model';
 import config from '@/config/env';
 import logger from '@/services/logger';
+import { decodeShareCodeToUuid } from '@/services/shareCode.service';
 
 const { JWT_SECRET } = config;
 
@@ -38,7 +39,11 @@ passport.use(
     },
     async (jwtPayload, done) => {
       try {
-        const user = await User.findByPk(jwtPayload.id);
+        const uuid = decodeShareCodeToUuid(jwtPayload.id, User.prefix);
+        if (!uuid) {
+          return done(null, false, { message: 'Invalid authorization token.' });
+        }
+        const user = await User.findByPk(uuid);
         if (user) {
           return done(null, await user.transform());
         }
