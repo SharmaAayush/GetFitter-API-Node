@@ -7,6 +7,7 @@ export interface ExerciseModelResponse extends BaseModelResponse {
   mechanic: string,
   equipment: string,
   category: string,
+  images: string[],
 }
 
 export interface GetExercisesQuery {

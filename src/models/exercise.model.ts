@@ -1,4 +1,4 @@
-import { DataTypes, HasOneGetAssociationMixin, Model, Optional } from "sequelize";
+import { DataTypes, HasManyGetAssociationsMixin, HasOneGetAssociationMixin, Model, Optional } from "sequelize";
 
 import sequelize from '@/config/database'
 import { ExerciseModelResponse } from "@/types/exercise.dto";
@@ -8,6 +8,7 @@ import Mechanic from "@/models/mechanic.model";
 import Category from "@/models/category.model";
 import Equipment from "@/models/equipment.model";
 import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
+import ImagePath from "@/models/image-path.model";
 
 // Define the attributes for the Exercise model
 export interface ExerciseAttributes extends BaseModelAttributes {
@@ -56,6 +57,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare Mechanic?: Mechanic;
   declare Equipment?: Equipment;
   declare Category?: Category;
+  declare ImagePaths?: ImagePath[];
 
   // 2. Declare the mixin getter for lazy loading fallback
   declare getForce: HasOneGetAssociationMixin<Force>;
@@ -63,6 +65,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare getMechanic: HasOneGetAssociationMixin<Mechanic>;
   declare getEquipment: HasOneGetAssociationMixin<Equipment>;
   declare getCategory: HasOneGetAssociationMixin<Category>;
+  declare getImagePaths: HasManyGetAssociationsMixin<ImagePath>;
 
   static prefix = 'EXER';
 
@@ -77,6 +80,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
       mechanic: this.Mechanic?.name || '',
       equipment: this.Equipment?.name || '',
       category: this.Category?.name || '',
+      images: this.ImagePaths?.map(image => `/assets/${image.name}`) || [],
     };
     return response;
   }
@@ -126,6 +130,8 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
     Exercise.belongsTo(Mechanic, { foreignKey: 'mechanicId', onDelete: 'CASCADE' });
     Exercise.belongsTo(Equipment, { foreignKey: 'equipmentId', onDelete: 'CASCADE' });
     Exercise.belongsTo(Category, { foreignKey: 'categoryId', onDelete: 'CASCADE' });
+
+    Exercise.hasMany(ImagePath, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
   }
 }
 

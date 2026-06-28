@@ -1,13 +1,21 @@
-import { Model } from "sequelize";
+import { DataTypes, Model, Optional } from "sequelize";
 
 import sequelize from '@/config/database';
-import { BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
-import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import { BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
+import { FilterAttributes, FilterModelResponse } from "@/types/filter.model";
+import Exercise from "./exercise.model";
+
+export interface ImagePathAttributes extends FilterAttributes {
+  exerciseId: string;
+}
+
+export type ImagePathCreationAttributes = Optional<ImagePathAttributes, BaseModelCreationExcludedAttributes | 'exerciseId'>
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
 @ModelWithShareCode()
-export class ImagePath extends Model<FilterAttributes, FilterCreationAttributes> {
+@ModelWithAssociations()
+export class ImagePath extends Model<ImagePathAttributes, ImagePathCreationAttributes> {
   declare id: string;
   declare name: string;
   declare shareCode: string;
@@ -27,7 +35,13 @@ export class ImagePath extends Model<FilterAttributes, FilterCreationAttributes>
 
   public static initializeModel() {
     ImagePath.init(
-      { ...BaseModelInitAttributes },
+      {
+        ...BaseModelInitAttributes,
+        exerciseId: {
+          type: DataTypes.UUID,
+          allowNull: false,
+        }
+      },
       {
         sequelize,
         tableName: 'ImagePaths',
@@ -35,6 +49,10 @@ export class ImagePath extends Model<FilterAttributes, FilterCreationAttributes>
         hooks: GenerateModelShareCodeHooks(ImagePath),
       }
     );
+  }
+
+  public static associate() {
+    ImagePath.belongsTo(Exercise, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
   }
 }
 

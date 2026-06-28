@@ -12,6 +12,7 @@ import { transformModelArr } from "@/services/util";
 import logger from "@/services/logger";
 import { IModelWithShareCode } from "@/types/base.models";
 import { ERROR_REASONS } from "@/consts/error-reasons";
+import ImagePath from "@/models/image-path.model";
 
 interface AssociationFilter {
   model: ModelStatic<Model> & IModelWithShareCode;
@@ -50,6 +51,7 @@ export class ExerciseService {
       { model: Mechanic, value: mechanic, property: 'mechanic' },
       { model: Equipment, value: equipment, property: 'equipment' },
       { model: Category, value: category, property: 'category' },
+      { model: ImagePath, value: '', property: '' },
     ]
     for (const { model, value, property } of queryAssociationFilters) {
       const associationFilter: AssociationFilter = {
@@ -155,13 +157,16 @@ export class ExerciseService {
 
   private async findOneExercise(where: WhereOptions<ExerciseAttributes>) {
     try {
-      const exercise = await Exercise.findOne({ where, include: [
-        this.buildIncludeForWhere({model: Force}),
-        this.buildIncludeForWhere({model: Level}),
-        this.buildIncludeForWhere({model: Mechanic}),
-        this.buildIncludeForWhere({model: Equipment}),
-        this.buildIncludeForWhere({model: Category}),
-      ] });
+      const exercise = await Exercise.findOne({
+        where, include: [
+          this.buildIncludeForWhere({ model: Force }),
+          this.buildIncludeForWhere({ model: Level }),
+          this.buildIncludeForWhere({ model: Mechanic }),
+          this.buildIncludeForWhere({ model: Equipment }),
+          this.buildIncludeForWhere({ model: Category }),
+          this.buildIncludeForWhere({ model: ImagePath }),
+        ]
+      });
 
       if (!exercise) {
         return errAsync({
