@@ -1,5 +1,4 @@
 import { DataTypes, HasOneGetAssociationMixin, Model, Optional } from "sequelize";
-import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database'
 import { ExerciseModelResponse } from "@/types/exercise.dto";
@@ -8,38 +7,28 @@ import Level from "@/models/level.model";
 import Mechanic from "@/models/mechanic.model";
 import Category from "@/models/category.model";
 import Equipment from "@/models/equipment.model";
-import { addShareCodeToModel } from "@/services/shareCode.service";
-import { ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
+import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 
 // Define the attributes for the Exercise model
-export interface ExerciseAttributes {
-  id: string;
+export interface ExerciseAttributes extends BaseModelAttributes {
   name: string;
-  shareCode: string;
   slug: string;
   forceId?: string;
   levelId: string;
   mechanicId?: string;
   equipmentId?: string;
   categoryId: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date | null;
 }
 
 // Define which attributes are optional when creating an Exercise instance
 export type ExerciseCreationAttributes = Optional<
   ExerciseAttributes,
-  'id'
-  | 'shareCode'
+  BaseModelCreationExcludedAttributes
   | 'forceId'
   | 'levelId'
   | 'mechanicId'
   | 'equipmentId'
   | 'categoryId'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'deletedAt'
 >;
 
 @ModelWithTransformation<ExerciseModelResponse>()
@@ -95,23 +84,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   public static initializeModel() {
     Exercise.init(
       {
-        id: {
-          type: DataTypes.UUID,
-          // Sequelize invokes this function for every new record
-          defaultValue: () => uuidv7(),
-          allowNull: false,
-          primaryKey: true,
-        },
-        name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true,
-        },
-        shareCode: {
-          type: DataTypes.STRING,
-          allowNull: true, // Keep it false in migration as it is generated in beforeCreate hook
-          unique: true,
-        },
+        ...BaseModelInitAttributes,
         slug: {
           type: DataTypes.STRING,
           allowNull: false,
@@ -137,35 +110,12 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
           type: DataTypes.UUID,
           allowNull: false,
         },
-        createdAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: null,
-        }
       },
       {
         sequelize,
         tableName: 'Exercises',
         paranoid: true, // Enable paranoid mode for soft deletes
-        hooks: {
-          beforeCreate: (exercise: Exercise) => {
-            addShareCodeToModel(exercise, Exercise.prefix);
-          },
-          beforeBulkCreate: (muscleGroups: Exercise[]) => {
-            // Support bulk operations safely for seeders
-            for (const muscleGroup of muscleGroups) {
-              addShareCodeToModel(muscleGroup, Exercise.prefix);
-            }
-          }
-        },
+        hooks: GenerateModelShareCodeHooks(Exercise),
       }
     );
   }

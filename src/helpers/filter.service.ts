@@ -2,8 +2,8 @@ import { transformModelArr } from "@/services/util";
 import { errAsync, okAsync } from "neverthrow";
 import logger from "@/services/logger";
 import { Model, ModelStatic } from "sequelize";
-import { IModelWithTransformation } from "../types/base.models";
-import { FilterModelResponse } from "../types/filter.model";
+import { IModelWithTransformation } from "@/types/base.models";
+import { FilterModelResponse } from "@/types/filter.model";
 import { ERROR_REASONS } from "@/consts/error-reasons";
 
 export abstract class FilterService {

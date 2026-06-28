@@ -1,6 +1,6 @@
-export interface ExerciseModelResponse {
-  id: string,
-  name: string,
+import { BaseModelResponse } from "./base.models";
+
+export interface ExerciseModelResponse extends BaseModelResponse {
   slug: string,
   force: string,
   level: string,

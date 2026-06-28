@@ -1,9 +1,7 @@
-import { DataTypes, Model } from "sequelize";
-import { uuidv7 } from "uuidv7";
+import { Model } from "sequelize";
 
 import sequelize from '@/config/database';
-import { ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
-import { addShareCodeToModel } from "@/services/shareCode.service";
+import { BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 
 @ModelWithTransformation<FilterModelResponse>()
@@ -29,53 +27,12 @@ export class MuscleGroup extends Model<FilterAttributes, FilterCreationAttribute
 
   public static initializeModel() {
     MuscleGroup.init(
-      {
-        id: {
-          type: DataTypes.UUID,
-          // Sequelize invokes this function for every new record
-          defaultValue: () => uuidv7(),
-          allowNull: false,
-          primaryKey: true,
-        },
-        name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-          unique: true,
-        },
-        shareCode: {
-          type: DataTypes.STRING,
-          allowNull: true, // Keep it false in migration as it is generated in beforeCreate hook
-          unique: true,
-        },
-        createdAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        updatedAt: {
-          type: DataTypes.DATE,
-          allowNull: false,
-        },
-        deletedAt: {
-          type: DataTypes.DATE,
-          allowNull: true,
-          defaultValue: null,
-        }
-      },
+      { ...BaseModelInitAttributes },
       {
         sequelize,
         tableName: 'MuscleGroups',
         paranoid: true, // Enable paranoid mode for soft deletes
-        hooks: {
-          beforeCreate: (muscleGroup: MuscleGroup) => {
-            addShareCodeToModel(muscleGroup, MuscleGroup.prefix);
-          },
-          beforeBulkCreate: (muscleGroups: MuscleGroup[]) => {
-            // Support bulk operations safely for seeders
-            for (const muscleGroup of muscleGroups) {
-              addShareCodeToModel(muscleGroup, MuscleGroup.prefix);
-            }
-          }
-        },
+        hooks: GenerateModelShareCodeHooks(MuscleGroup),
       }
     );
   }

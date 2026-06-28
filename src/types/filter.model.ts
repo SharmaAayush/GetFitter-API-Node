@@ -1,19 +1,12 @@
 import { Optional } from "sequelize";
+import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelResponse } from "@/types/base.models";
 
 // Define the attributes for the Filter model
-export interface FilterAttributes {
-  id: string;
+export interface FilterAttributes extends BaseModelAttributes {
   name: string;
-  shareCode: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date | null;
 }
 
 // Define which attributes are optional when creating an Filter instance
-export type FilterCreationAttributes = Optional<FilterAttributes, 'id' | 'shareCode' | 'createdAt' | 'updatedAt' | 'deletedAt'>;
+export type FilterCreationAttributes = Optional<FilterAttributes, BaseModelCreationExcludedAttributes>;
 
-export interface FilterModelResponse {
-  id: string;
-  name: string;
-}
+export type FilterModelResponse = BaseModelResponse;

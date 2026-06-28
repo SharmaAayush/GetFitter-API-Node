@@ -8,8 +8,8 @@ import Mechanic from "@/models/mechanic.model";
 import Equipment from "@/models/equipment.model";
 import Category from "@/models/category.model";
 import { errAsync, okAsync, ResultAsync } from "neverthrow";
-import { transformModelArr } from "./util";
-import logger from "./logger";
+import { transformModelArr } from "@/services/util";
+import logger from "@/services/logger";
 import { IModelWithShareCode } from "@/types/base.models";
 import { ERROR_REASONS } from "@/consts/error-reasons";
 

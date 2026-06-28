@@ -1,32 +1,29 @@
 import { DataTypes, Model, Optional } from "sequelize";
-import { uuidv7 } from "uuidv7";
 
 import sequelize from '@/config/database'
 import { UserModelResponse } from "@/types/user.dto";
 import {
+  BaseModelAttributes,
+  BaseModelCreationExcludedAttributes,
+  CreatedAtAttribute,
+  DeletedAtAttribute,
+  GenerateModelShareCodeHooks,
+  IdAttribute,
   ModelWithInitialization,
   ModelWithShareCode,
-  ModelWithTransformation
+  ModelWithTransformation,
+  ShareCodeAttribute,
+  UpdatedAtAttribute
 } from "@/types/base.models";
-import { addShareCodeToModel } from "@/services/shareCode.service";
 
-export interface UserAttributes {
-  id: string;
+export interface UserAttributes extends BaseModelAttributes {
   email: string;
   password: string;
-  shareCode: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  deletedAt?: Date | null;
 }
 
 export type UserCreationAttributes = Optional<
   UserAttributes,
-  'id'
-  | 'shareCode'
-  | 'createdAt'
-  | 'updatedAt'
-  | 'deletedAt'
+  BaseModelCreationExcludedAttributes
 >;
 
 @ModelWithTransformation<UserModelResponse>()
@@ -53,13 +50,7 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
 
   public static initializeModel() {
     User.init({
-      id: {
-        type: DataTypes.UUID,
-        // Sequelize invokes this function for every new record
-        defaultValue: () => uuidv7(),
-        allowNull: false,
-        primaryKey: true,
-      },
+      id: IdAttribute,
       email: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -70,39 +61,15 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
         type: DataTypes.STRING,
         allowNull: false, // make it nullable later for SSO logins
       },
-      shareCode: {
-        type: DataTypes.STRING,
-        allowNull: true, // Keep it false in migration as it is generated in beforeCreate hook
-        unique: true,
-      },
-      createdAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: false,
-      },
-      deletedAt: {
-        type: DataTypes.DATE,
-        allowNull: true,
-        defaultValue: null,
-      }
+      shareCode: ShareCodeAttribute,
+      createdAt: CreatedAtAttribute,
+      updatedAt: UpdatedAtAttribute,
+      deletedAt: DeletedAtAttribute,
     }, {
       sequelize,
       tableName: 'Users',
       paranoid: true, // Enable paranoid mode for soft deletes
-      hooks: {
-        beforeCreate: (item: User) => {
-          addShareCodeToModel(item, User.prefix);
-        },
-        beforeBulkCreate: (item: User[]) => {
-          // Support bulk operations safely for seeders
-          for (const equipment of item) {
-            addShareCodeToModel(equipment, User.prefix);
-          }
-        }
-      },
+      hooks: GenerateModelShareCodeHooks(User),
     })
   }
 }

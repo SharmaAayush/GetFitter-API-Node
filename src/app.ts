@@ -11,7 +11,7 @@ import { errorHandler } from '@/middleware/errorHandler';
 import sequelize from '@/config/database';
 import logger from '@/services/logger';
 import { loadAndInitializeModels } from '@/models';
-import { blockJsonFiles } from './middleware/assetMiddleware';
+import { blockJsonFiles } from '@/middleware/assetMiddleware';
 
 class App {
   public app: express.Application;
