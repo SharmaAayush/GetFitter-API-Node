@@ -13,6 +13,7 @@ import logger from "@/services/logger";
 import { IModelWithShareCode } from "@/types/base.models";
 import { ERROR_REASONS } from "@/consts/error-reasons";
 import ImagePath from "@/models/image-path.model";
+import ExerciseInstruction from "@/models/exercise-instruction";
 
 interface AssociationFilter {
   model: ModelStatic<Model> & IModelWithShareCode;
@@ -52,6 +53,7 @@ export class ExerciseService {
       { model: Equipment, value: equipment, property: 'equipment' },
       { model: Category, value: category, property: 'category' },
       { model: ImagePath, value: '', property: '' },
+      { model: ExerciseInstruction, value: '', property: '' },
     ]
     for (const { model, value, property } of queryAssociationFilters) {
       const associationFilter: AssociationFilter = {
@@ -165,6 +167,7 @@ export class ExerciseService {
           this.buildIncludeForWhere({ model: Equipment }),
           this.buildIncludeForWhere({ model: Category }),
           this.buildIncludeForWhere({ model: ImagePath }),
+          this.buildIncludeForWhere({ model: ExerciseInstruction }),
         ]
       });
 

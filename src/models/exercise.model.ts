@@ -9,6 +9,7 @@ import Category from "@/models/category.model";
 import Equipment from "@/models/equipment.model";
 import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import ImagePath from "@/models/image-path.model";
+import { ExerciseInstruction } from "./exercise-instruction";
 
 // Define the attributes for the Exercise model
 export interface ExerciseAttributes extends BaseModelAttributes {
@@ -58,6 +59,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare Equipment?: Equipment;
   declare Category?: Category;
   declare ImagePaths?: ImagePath[];
+  declare ExerciseInstructions?: ExerciseInstruction[];
 
   // 2. Declare the mixin getter for lazy loading fallback
   declare getForce: HasOneGetAssociationMixin<Force>;
@@ -66,6 +68,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare getEquipment: HasOneGetAssociationMixin<Equipment>;
   declare getCategory: HasOneGetAssociationMixin<Category>;
   declare getImagePaths: HasManyGetAssociationsMixin<ImagePath>;
+  declare getExerciseInstructions: HasManyGetAssociationsMixin<ExerciseInstruction>;
 
   static prefix = 'EXER';
 
@@ -81,6 +84,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
       equipment: this.Equipment?.name || '',
       category: this.Category?.name || '',
       images: this.ImagePaths?.map(image => `/assets/${image.name}`) || [],
+      instructions: this.ExerciseInstructions?.map(instruction => instruction.instruction) || [],
     };
     return response;
   }
@@ -132,6 +136,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
     Exercise.belongsTo(Category, { foreignKey: 'categoryId', onDelete: 'CASCADE' });
 
     Exercise.hasMany(ImagePath, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
+    Exercise.hasMany(ExerciseInstruction, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
   }
 }
 
