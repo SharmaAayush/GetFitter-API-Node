@@ -33,7 +33,7 @@ interface ParsedGetExercisesQuery {
 
 export class ExerciseService {
   private async parseGetExercisesQuery(query: GetExercisesQuery) {
-    const { category, equipment, force, level, limit, mechanic, name, page, } = query;
+    const { category, equipment, force, level, limit, mechanic, name, page, target, } = query;
 
     const parsedPage = Math.max(1, parseInt(page || '1', 10));
     const parsedLimit = Math.max(1, Math.min(100, parseInt(limit || '10', 10)));
@@ -54,7 +54,7 @@ export class ExerciseService {
       { model: Mechanic, value: mechanic, property: 'mechanic' },
       { model: Equipment, value: equipment, property: 'equipment' },
       { model: Category, value: category, property: 'category' },
-      { model: MuscleGroup, as: 'TargetMuscle', value: '', property: '' },
+      { model: MuscleGroup, as: 'TargetMuscle', value: target, property: 'target' },
       { model: MuscleGroup, as: 'SecondaryMuscles', value: '', property: '' },
       { model: ImagePath, value: '', property: '' },
       { model: ExerciseInstruction, value: '', property: '' },

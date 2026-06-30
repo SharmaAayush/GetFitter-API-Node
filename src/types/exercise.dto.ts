@@ -22,4 +22,5 @@ export interface GetExercisesQuery {
   mechanic?: string;
   equipment?: string;
   category?: string;
+  target?: string;
 }
