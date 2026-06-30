@@ -1,11 +1,13 @@
 import { Model } from "sequelize";
 
 import sequelize from '@/config/database';
-import { BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
+import { BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
+import Exercise from "./exercise.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
+@ModelWithAssociations()
 @ModelWithShareCode()
 export class MuscleGroup extends Model<FilterAttributes, FilterCreationAttributes> {
   declare id: string;
@@ -35,6 +37,16 @@ export class MuscleGroup extends Model<FilterAttributes, FilterCreationAttribute
         hooks: GenerateModelShareCodeHooks(MuscleGroup),
       }
     );
+  }
+
+  public static associate() {
+    MuscleGroup.hasMany(Exercise, { foreignKey: 'targetMuscleId', onDelete: 'CASCADE', as: 'TargetMuscle' });
+    MuscleGroup.belongsToMany(Exercise, {
+      through: 'ExerciseSecondaryMuscles',
+      foreignKey: 'muscleGroupId',
+      otherKey: 'exerciseId',
+      as: 'SecondaryExercises'
+    });
   }
 }
 

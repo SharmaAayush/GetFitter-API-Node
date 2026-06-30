@@ -1,4 +1,4 @@
-import { DataTypes, HasManyGetAssociationsMixin, HasOneGetAssociationMixin, Model, Optional } from "sequelize";
+import { BelongsToManyGetAssociationsMixin, DataTypes, HasManyGetAssociationsMixin, HasOneGetAssociationMixin, Model, Optional } from "sequelize";
 
 import sequelize from '@/config/database'
 import { ExerciseModelResponse } from "@/types/exercise.dto";
@@ -65,6 +65,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare TargetMuscle?: MuscleGroup;
   declare ImagePaths?: ImagePath[];
   declare ExerciseInstructions?: ExerciseInstruction[];
+  declare SecondaryMuscles?: MuscleGroup[];
 
   // 2. Declare the mixin getter for lazy loading fallback
   declare getForce: HasOneGetAssociationMixin<Force>;
@@ -75,6 +76,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare getTargetMuscle: HasOneGetAssociationMixin<MuscleGroup>;
   declare getImagePaths: HasManyGetAssociationsMixin<ImagePath>;
   declare getExerciseInstructions: HasManyGetAssociationsMixin<ExerciseInstruction>;
+  declare getSecondaryMuscles: BelongsToManyGetAssociationsMixin<MuscleGroup>;
 
   static prefix = 'EXER';
 
@@ -90,6 +92,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
       equipment: this.Equipment?.name || '',
       category: this.Category?.name || '',
       targetMuscle: this.TargetMuscle?.name || '',
+      secondaryMuscles: this.SecondaryMuscles?.map(muscle => muscle.name) || [],
       images: this.ImagePaths?.map(image => `/assets/${image.name}`) || [],
       instructions: this.ExerciseInstructions?.map(instruction => instruction.instruction) || [],
     };
@@ -149,6 +152,13 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
 
     Exercise.hasMany(ImagePath, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
     Exercise.hasMany(ExerciseInstruction, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
+
+    Exercise.belongsToMany(MuscleGroup, {
+      through: 'ExerciseSecondaryMuscles',
+      foreignKey: 'exerciseId',
+      otherKey: 'muscleGroupId',
+      as: 'SecondaryMuscles' // Custom alias for autocomplete/queries
+    });
   }
 }
 

@@ -8,6 +8,7 @@ export interface ExerciseModelResponse extends BaseModelResponse {
   equipment: string,
   category: string,
   targetMuscle: string,
+  secondaryMuscles: string[],
   images: string[],
   instructions: string[],
 }

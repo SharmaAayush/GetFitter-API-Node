@@ -55,6 +55,7 @@ export class ExerciseService {
       { model: Equipment, value: equipment, property: 'equipment' },
       { model: Category, value: category, property: 'category' },
       { model: MuscleGroup, as: 'TargetMuscle', value: '', property: '' },
+      { model: MuscleGroup, as: 'SecondaryMuscles', value: '', property: '' },
       { model: ImagePath, value: '', property: '' },
       { model: ExerciseInstruction, value: '', property: '' },
     ]
@@ -176,6 +177,7 @@ export class ExerciseService {
           this.buildIncludeForWhere({ model: ImagePath }),
           this.buildIncludeForWhere({ model: MuscleGroup, as: 'TargetMuscle' }),
           this.buildIncludeForWhere({ model: ExerciseInstruction }),
+          this.buildIncludeForWhere({ model: MuscleGroup, as: 'SecondaryMuscles' }),
         ]
       });
 
