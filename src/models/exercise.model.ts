@@ -10,6 +10,7 @@ import Equipment from "@/models/equipment.model";
 import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import ImagePath from "@/models/image-path.model";
 import { ExerciseInstruction } from "./exercise-instruction";
+import MuscleGroup from "./musclegroup.model";
 
 // Define the attributes for the Exercise model
 export interface ExerciseAttributes extends BaseModelAttributes {
@@ -20,6 +21,7 @@ export interface ExerciseAttributes extends BaseModelAttributes {
   mechanicId?: string;
   equipmentId?: string;
   categoryId: string;
+  targetMuscleId: string;
 }
 
 // Define which attributes are optional when creating an Exercise instance
@@ -31,6 +33,7 @@ export type ExerciseCreationAttributes = Optional<
   | 'mechanicId'
   | 'equipmentId'
   | 'categoryId'
+  | 'targetMuscleId'
 >;
 
 @ModelWithTransformation<ExerciseModelResponse>()
@@ -47,6 +50,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare mechanicId: string;
   declare equipmentId: string;
   declare categoryId: string;
+  declare targetMuscleId: string;
   declare createdAt?: Date;
   declare updatedAt?: Date;
   declare deletedAt?: Date | null;
@@ -58,6 +62,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare Mechanic?: Mechanic;
   declare Equipment?: Equipment;
   declare Category?: Category;
+  declare TargetMuscle?: MuscleGroup;
   declare ImagePaths?: ImagePath[];
   declare ExerciseInstructions?: ExerciseInstruction[];
 
@@ -67,6 +72,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
   declare getMechanic: HasOneGetAssociationMixin<Mechanic>;
   declare getEquipment: HasOneGetAssociationMixin<Equipment>;
   declare getCategory: HasOneGetAssociationMixin<Category>;
+  declare getTargetMuscle: HasOneGetAssociationMixin<MuscleGroup>;
   declare getImagePaths: HasManyGetAssociationsMixin<ImagePath>;
   declare getExerciseInstructions: HasManyGetAssociationsMixin<ExerciseInstruction>;
 
@@ -83,6 +89,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
       mechanic: this.Mechanic?.name || '',
       equipment: this.Equipment?.name || '',
       category: this.Category?.name || '',
+      targetMuscle: this.TargetMuscle?.name || '',
       images: this.ImagePaths?.map(image => `/assets/${image.name}`) || [],
       instructions: this.ExerciseInstructions?.map(instruction => instruction.instruction) || [],
     };
@@ -118,6 +125,10 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
           type: DataTypes.UUID,
           allowNull: false,
         },
+        targetMuscleId: {
+          type: DataTypes.UUID,
+          allowNull: false,
+        },
       },
       {
         sequelize,
@@ -134,6 +145,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
     Exercise.belongsTo(Mechanic, { foreignKey: 'mechanicId', onDelete: 'CASCADE' });
     Exercise.belongsTo(Equipment, { foreignKey: 'equipmentId', onDelete: 'CASCADE' });
     Exercise.belongsTo(Category, { foreignKey: 'categoryId', onDelete: 'CASCADE' });
+    Exercise.belongsTo(MuscleGroup, { foreignKey: 'targetMuscleId', onDelete: 'CASCADE', as: 'TargetMuscle' });
 
     Exercise.hasMany(ImagePath, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
     Exercise.hasMany(ExerciseInstruction, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });

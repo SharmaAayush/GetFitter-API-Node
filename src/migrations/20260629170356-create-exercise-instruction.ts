@@ -38,7 +38,7 @@ module.exports = {
       type: 'foreign key',
       name: 'fk_exercise_instructions_exercises',
       references: {
-        table: 'Exercises', // Name of your actual target table
+        table: Exercise.tableName, // Name of your actual target table
         field: 'id',
       },
       onDelete: 'CASCADE',
@@ -54,7 +54,7 @@ module.exports = {
 
     for (const exercise of exerciseData) {
       const [records] = await queryInterface.sequelize.query(
-        `SELECT id FROM "Exercises" WHERE slug = :slug LIMIT 1;`,
+        `SELECT id FROM "${Exercise.tableName}" WHERE slug = :slug LIMIT 1;`,
         { replacements: { slug: exercise.id } }
       );
       const exerciseRows = records as Exercise[];
