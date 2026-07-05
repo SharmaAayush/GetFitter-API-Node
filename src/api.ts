@@ -8,6 +8,7 @@ import muscleGroupRoutes from '@/routes/muscleGroup.routes';
 import exerciseRoutes from '@/routes/exercise.routes';
 import filtersRoutes from '@/routes/filters.routes';
 import userRoutes from '@/routes/user.routes';
+import weightUnitRoutes from '@/routes/weightunit.routes';
 
 const router = Router();
 
@@ -23,6 +24,8 @@ router.use('/levels', levelRoutes);
 router.use('/mechanics', mechanicRoutes);
 // Muscle groups routes
 router.use('/muscle-groups', muscleGroupRoutes);
+// Weight units routes
+router.use('/weight-units', weightUnitRoutes);
 // Filters routes
 router.use('/filters', filtersRoutes);
 // Exercise routes
