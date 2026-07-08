@@ -4,6 +4,7 @@ import sequelize from '@/config/database';
 import { BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { FilterAttributes, FilterCreationAttributes, FilterModelResponse } from "@/types/filter.model";
 import { Exercise } from "@/models/exercise.model";
+import Workout from "./workout.model";
 
 @ModelWithTransformation<FilterModelResponse>()
 @ModelWithInitialization()
@@ -41,6 +42,7 @@ export class Level extends Model<FilterAttributes, FilterCreationAttributes> {
 
   public static associate() {
     Level.hasMany(Exercise, { foreignKey: 'levelId', onDelete: 'CASCADE' });
+    Level.hasMany(Workout, { foreignKey: 'levelId', onDelete: 'CASCADE' });
   }
 }
 

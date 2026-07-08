@@ -9,12 +9,14 @@ import {
   DeletedAtAttribute,
   GenerateModelShareCodeHooks,
   IdAttribute,
+  ModelWithAssociations,
   ModelWithInitialization,
   ModelWithShareCode,
   ModelWithTransformation,
   ShareCodeAttribute,
   UpdatedAtAttribute
 } from "@/types/base.models";
+import Workout from "./workout.model";
 
 export interface UserAttributes extends BaseModelAttributes {
   email: string;
@@ -29,6 +31,7 @@ export type UserCreationAttributes = Optional<
 @ModelWithTransformation<UserModelResponse>()
 @ModelWithInitialization()
 @ModelWithShareCode()
+@ModelWithAssociations()
 export class User extends Model<UserAttributes, UserCreationAttributes> {
   declare id: string;
   declare email: string;
@@ -71,6 +74,10 @@ export class User extends Model<UserAttributes, UserCreationAttributes> {
       paranoid: true, // Enable paranoid mode for soft deletes
       hooks: GenerateModelShareCodeHooks(User),
     })
+  }
+
+  static associate() {
+    User.hasMany(Workout, { foreignKey: 'userId', onDelete: 'CASCADE' });
   }
 }
 

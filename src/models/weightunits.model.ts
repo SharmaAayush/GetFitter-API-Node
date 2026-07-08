@@ -1,7 +1,8 @@
-import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
+import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInitAttributes, GenerateModelShareCodeHooks, ModelWithAssociations, ModelWithInitialization, ModelWithShareCode, ModelWithTransformation } from "@/types/base.models";
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from '@/config/database';
 import { WeightUnitResponse } from "@/types/weightunit.dto";
+import WorkoutExerciseSet from "./workoutexerciseset.model";
 
 export interface WeightUnitAttributes extends BaseModelAttributes {
   name: string;
@@ -13,6 +14,7 @@ export type WeightUnitCreationAttributes = Optional<WeightUnitAttributes, BaseMo
 @ModelWithTransformation<WeightUnitResponse>()
 @ModelWithInitialization()
 @ModelWithShareCode()
+@ModelWithAssociations()
 export class WeightUnit extends Model<WeightUnitAttributes, WeightUnitCreationAttributes> {
   declare id: string;
   declare name: string;
@@ -49,6 +51,12 @@ export class WeightUnit extends Model<WeightUnitAttributes, WeightUnitCreationAt
         hooks: GenerateModelShareCodeHooks(WeightUnit),
       }
     );
+  }
+
+  public static associate() {
+    WeightUnit.hasMany(WorkoutExerciseSet, {
+      foreignKey: 'weightUnitId',
+    });
   }
 }
 

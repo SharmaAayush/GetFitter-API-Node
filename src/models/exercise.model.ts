@@ -11,6 +11,8 @@ import { BaseModelAttributes, BaseModelCreationExcludedAttributes, BaseModelInit
 import ImagePath from "@/models/image-path.model";
 import { ExerciseInstruction } from "./exercise-instruction";
 import MuscleGroup from "./musclegroup.model";
+import Workout from "./workout.model";
+import WorkoutExercise from "./workoutexercise.model";
 
 // Define the attributes for the Exercise model
 export interface ExerciseAttributes extends BaseModelAttributes {
@@ -152,6 +154,7 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
 
     Exercise.hasMany(ImagePath, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
     Exercise.hasMany(ExerciseInstruction, { foreignKey: 'exerciseId', onDelete: 'CASCADE' });
+    Exercise.hasMany(WorkoutExercise, { foreignKey: "exerciseId", onDelete: "CASCADE" });
 
     Exercise.belongsToMany(MuscleGroup, {
       through: 'ExerciseSecondaryMuscles',
@@ -159,6 +162,8 @@ export class Exercise extends Model<ExerciseAttributes, ExerciseCreationAttribut
       otherKey: 'muscleGroupId',
       as: 'SecondaryMuscles' // Custom alias for autocomplete/queries
     });
+
+    Exercise.belongsToMany(Workout, { through: WorkoutExercise, foreignKey: "exerciseId", otherKey: "workoutId" });
   }
 }
 
