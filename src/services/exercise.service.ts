@@ -1,5 +1,5 @@
 import Exercise, { ExerciseAttributes } from "@/models/exercise.model";
-import { GetExercisesQuery } from "@/types/exercise.dto";
+import { GetExercisesRequest } from "@/types/exercise.dto";
 import { FindAndCountOptions, IncludeOptions, Model, ModelStatic, Op, WhereOptions } from "sequelize";
 import { decodeShareCodeToUuid } from "@/services/shareCode.service";
 import Force from "@/models/force.model";
@@ -32,11 +32,11 @@ interface ParsedGetExercisesQuery {
 }
 
 export class ExerciseService {
-  private async parseGetExercisesQuery(query: GetExercisesQuery) {
+  private async parseGetExercisesQuery(query: GetExercisesRequest['query']) {
     const { category, equipment, force, level, limit, mechanic, name, page, target, } = query;
 
-    const parsedPage = Math.max(1, parseInt(page || '1', 10));
-    const parsedLimit = Math.max(1, Math.min(100, parseInt(limit || '10', 10)));
+    const parsedPage = Math.max(1, page || 1);
+    const parsedLimit = Math.max(1, Math.min(100, limit || 10));
     const offset = (parsedPage - 1) * parsedLimit;
 
     const associationFilters: AssociationFilter[] = [];
@@ -132,7 +132,7 @@ export class ExerciseService {
     return findAndCountOptions;
   }
 
-  async getExercises(query: GetExercisesQuery) {
+  async getExercises(query: GetExercisesRequest['query']) {
     const parsedQueryResult = await this.parseGetExercisesQuery(query)
     return await parsedQueryResult.asyncAndThen((parsedQuery: ParsedGetExercisesQuery) => {
       const findAndCountAllOptions = this.buildOptionsForGetExercises(parsedQuery);

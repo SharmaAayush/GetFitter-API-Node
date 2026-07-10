@@ -1,14 +1,14 @@
 import { ERROR_REASONS } from '@/consts/error-reasons';
 import { ExerciseService } from '@/services/exercise.service';
 import logger from '@/services/logger';
-import { ExerciseModelResponse, GetExercisesQuery } from '@/types/exercise.dto';
+import { ExerciseModelResponse, GetExerciseByShareCodeRequest, GetExerciseBySlugRequest, GetExercisesRequest } from '@/types/exercise.dto';
 import { ApiErrorResponse, ApiSuccessResponse } from '@/types/response';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 export class ExerciseController {
   service = new ExerciseService();
 
-  async getExercises(req: Request<unknown, unknown, unknown, GetExercisesQuery>, res: Response) {
+  async getExercises(req: GetExercisesRequest, res: Response) {
     const result = await this.service.getExercises(req.query);
 
     result.match(
@@ -93,13 +93,13 @@ export class ExerciseController {
     );
   }
 
-  async getExerciseByShareCode(req: Request<{ shareCode: string }>, res: Response) {
+  async getExerciseByShareCode(req: GetExerciseByShareCodeRequest, res: Response) {
     const shareCode = req.params.shareCode;
     
     this.getExerciseByProp(this.service.getExerciseByShareCode.bind(this.service), shareCode, res);
   }
 
-  async getExerciseBySlug(req: Request<{ slug: string }>, res: Response) {
+  async getExerciseBySlug(req: GetExerciseBySlugRequest, res: Response) {
     const slug = req.params.slug;
     
     this.getExerciseByProp(this.service.getExerciseBySlug.bind(this.service), slug, res);
