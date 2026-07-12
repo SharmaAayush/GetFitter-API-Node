@@ -6,6 +6,6 @@ const controller = new WorkoutController();
 
 router.post('/', controller.createWorkout.bind(controller));
 
-// router.get('/', controller.getAll.bind(controller));
+router.get('/', controller.getWorkouts.bind(controller));
 
 export default router;

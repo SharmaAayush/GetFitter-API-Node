@@ -6,7 +6,6 @@ import { ERROR_REASONS } from "@/consts/error-reasons";
 import { errAsync, okAsync } from "neverthrow";
 import sequelize from '@/config/database'
 import Workout, { WorkoutCreationAttributes } from "@/models/workout.model";
-import User from "@/models/user.model";
 import { CreationAttributes, Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/lib/utils";
 import WorkoutExercise from "@/models/workoutexercise.model";
@@ -14,6 +13,9 @@ import WorkoutExerciseSet from "@/models/workoutexerciseset.model";
 import { uuidv7 } from "uuidv7";
 import { getLevelPriority } from "@/helpers/level";
 import Level from "@/models/level.model";
+import { UserModelResponse } from "@/types/user.dto";
+import { transformModelArr } from "./util";
+import User from "@/models/user.model";
 
 class CustomError extends Error {
   constructor(message: string) {
@@ -76,7 +78,7 @@ export class WorkoutService {
     return { exerciseMap, weightUnitMap, levelsMaap: levelsMap, maxPriorityLevel };
   }
 
-  async createWorkout(workoutBody: CreateWorkoutRequest['body'], user: User) {
+  async createWorkout(workoutBody: CreateWorkoutRequest['body'], user: UserModelResponse) {
     try {
       const { exerciseMap, weightUnitMap, maxPriorityLevel } = await this.getNestedModels(workoutBody);
       let workout: Workout | null = null;
@@ -130,7 +132,7 @@ export class WorkoutService {
         await WorkoutExerciseSet.bulkCreate(createWorkoutExerciseSetsRecords, { transaction });
       });
 
-      return okAsync({ success: true, message: 'Workout created successfully' } as const);
+      return okAsync('Workout created successfully' as const);
     } catch (error) {
       logger.error(`Error creating workout`);
       logger.debug(error);
@@ -140,6 +142,32 @@ export class WorkoutService {
           details: error.message,
         } as const);
       }
+      return errAsync({
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
+        details: error,
+      } as const);
+    }
+  }
+
+  async getWorkouts(user: UserModelResponse) {
+    try {
+      const workouts = await Workout.findAll({
+        where: { userId: user.id }, include: [
+          { model: User },
+          { model: Level },
+          { model: Exercise, include: [{ all: true }] },
+          {
+            model: WorkoutExercise, include: [{
+              model: WorkoutExerciseSet,
+              include: [{ all: true }],
+            }]
+          },
+        ]
+      });
+      return okAsync(await transformModelArr(workouts));
+    } catch (error) {
+      logger.error(`Error fetching workout`);
+      logger.debug(error);
       return errAsync({
         reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
         details: error,
