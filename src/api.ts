@@ -9,6 +9,8 @@ import exerciseRoutes from '@/routes/exercise.routes';
 import filtersRoutes from '@/routes/filters.routes';
 import userRoutes from '@/routes/user.routes';
 import weightUnitRoutes from '@/routes/weightunit.routes';
+import workoutRoutes from '@/routes/workout.routes';
+import { requireAuth } from "./middleware/requireAuth";
 
 const router = Router();
 
@@ -32,5 +34,7 @@ router.use('/filters', filtersRoutes);
 router.use('/exercises', exerciseRoutes);
 // User authentication routes
 router.use('/user', userRoutes);
+// Workout routes
+router.use('/workout', requireAuth, workoutRoutes);
 
 export default router;

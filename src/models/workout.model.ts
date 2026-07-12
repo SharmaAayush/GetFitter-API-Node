@@ -11,7 +11,7 @@ export interface WorkoutAttributes extends BaseModelAttributes {
   userId: string,
   description?: string,
   levelId: string,
-  estimatedDuration: number,
+  estimatedDuration?: number,
 }
 
 export type WorkoutCreationAttributes = Optional<WorkoutAttributes, BaseModelCreationExcludedAttributes | 'description' | 'levelId'>;
@@ -30,12 +30,12 @@ export class Workout extends Model<WorkoutAttributes, WorkoutCreationAttributes>
   declare userId: string;
   declare description?: string;
   declare levelId: string;
-  declare estimatedDuration: number;
+  declare estimatedDuration?: number;
 
   declare User?: User;
   declare Level?: Level;
-  declare WorkoutExercise?: WorkoutExercise[];
-  declare Exercise?: Exercise[];
+  declare WorkoutExercises?: WorkoutExercise[];
+  declare Exercises?: Exercise[];
 
   declare getUser: BelongsToGetAssociationMixin<User>;
   declare getLevel: BelongsToGetAssociationMixin<Level>;

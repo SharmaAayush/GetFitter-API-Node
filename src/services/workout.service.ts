@@ -1,0 +1,149 @@
+import Exercise from "@/models/exercise.model";
+import WeightUnit from "@/models/weightunits.model";
+import { CreateWorkoutRequest } from "@/types/workout.dto";
+import logger from "@/services/logger";
+import { ERROR_REASONS } from "@/consts/error-reasons";
+import { errAsync, okAsync } from "neverthrow";
+import sequelize from '@/config/database'
+import Workout, { WorkoutCreationAttributes } from "@/models/workout.model";
+import User from "@/models/user.model";
+import { CreationAttributes, Optional } from "sequelize";
+import { NullishPropertiesOf } from "sequelize/lib/utils";
+import WorkoutExercise from "@/models/workoutexercise.model";
+import WorkoutExerciseSet from "@/models/workoutexerciseset.model";
+import { uuidv7 } from "uuidv7";
+import { getLevelPriority } from "@/helpers/level";
+import Level from "@/models/level.model";
+
+class CustomError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CustomError";
+  }
+}
+
+export class WorkoutService {
+  private async getAllExercises(exerciseShareCodes: string[]) {
+    const exercises = await Exercise.findAll({
+      where: { shareCode: exerciseShareCodes }, include: {
+        all: true,
+      }
+    });
+    return exercises;
+  }
+
+  private getAllWeightUnits(weightUnitShareCodes: string[]) {
+    const weightUnits = WeightUnit.findAll({ where: { shareCode: weightUnitShareCodes } });
+    return weightUnits;
+  }
+
+  private async getNestedModels(workoutBody: CreateWorkoutRequest['body']) {
+    const exerciseIds: string[] = [];
+    const weighUnitIds: string[] = [];
+    const levels: Level[] = [];
+    let maxPriorityLevel: Level = await Level.findOne({
+      order: [['createdAt', 'ASC']],
+      rejectOnEmpty: true,
+    });
+    workoutBody.exercises.forEach(exercise => {
+      exerciseIds.push(exercise.exerciseId);
+      weighUnitIds.push(
+        ...exercise.sets
+          .map(set => set.weightUnit)
+          .filter(id => id !== undefined)
+      );
+    });
+
+    const exercises = await this.getAllExercises(exerciseIds);
+    const weightUnits = await this.getAllWeightUnits(weighUnitIds);
+
+    const exerciseMap = new Map(
+      exercises.map(exercise => {
+        const level = exercise.Level as Level;
+        levels.push(level);
+        if (getLevelPriority(level.name) > getLevelPriority(maxPriorityLevel.name)) {
+          maxPriorityLevel = level;
+        }
+        return [exercise.shareCode, exercise]
+      })
+    );
+    const weightUnitMap = new Map(
+      weightUnits.map(weightUnit => [weightUnit.shareCode, weightUnit])
+    );
+    const levelsMap = new Map(
+      levels.map(level => [level.shareCode, level])
+    )
+    return { exerciseMap, weightUnitMap, levelsMaap: levelsMap, maxPriorityLevel };
+  }
+
+  async createWorkout(workoutBody: CreateWorkoutRequest['body'], user: User) {
+    try {
+      const { exerciseMap, weightUnitMap, maxPriorityLevel } = await this.getNestedModels(workoutBody);
+      let workout: Workout | null = null;
+
+      await sequelize.transaction(async transaction => {
+        const createWorkoutAttributes: Optional<WorkoutCreationAttributes, NullishPropertiesOf<WorkoutCreationAttributes>> = {
+          name: workoutBody.name,
+          userId: user.id,
+          levelId: maxPriorityLevel.id,
+        }
+        if (typeof workoutBody.description === 'string') createWorkoutAttributes.description = workoutBody.description;
+        if (typeof workoutBody.estimatedDuration === 'number') createWorkoutAttributes.estimatedDuration = workoutBody.estimatedDuration;
+        workout = await Workout.create(createWorkoutAttributes, { transaction });
+        const createdWorkout = workout;
+
+        const createWorkoutExercisesRecords: Array<CreationAttributes<WorkoutExercise>> = [];
+        const createWorkoutExerciseSetsRecords: Array<CreationAttributes<WorkoutExerciseSet>> = [];
+
+        workoutBody.exercises.forEach(exercise => {
+          const exerciseRecord = exerciseMap.get(exercise.exerciseId);
+          if (!exerciseRecord) throw new CustomError(`Invalid exercise share code ${exercise.exerciseId}`);
+          // TODO: return errAsync here
+          const workoutExerciseId = uuidv7();
+          const createWorkoutExerciseRecord: CreationAttributes<WorkoutExercise> = {
+            id: workoutExerciseId,
+            workoutId: createdWorkout.id,
+            exerciseId: exerciseRecord.id,
+            orderIndex: exercise.order,
+          }
+          createWorkoutExercisesRecords.push(createWorkoutExerciseRecord);
+
+          exercise.sets.forEach(set => {
+            const weightUnitRecord = set.weightUnit ? weightUnitMap.get(set.weightUnit) : null;
+            const weightUnitPresent = set.weightUnit;
+            if (!weightUnitRecord && weightUnitPresent) throw new CustomError(`Invalid weight unit share code ${set.weightUnit}`);
+            // TODO: return errAsync here
+            const createWorkoutExerciseSetRecord: CreationAttributes<WorkoutExerciseSet> = {
+              reps: set.reps,
+              setNumber: set.setNumber,
+              workoutExerciseId: workoutExerciseId,
+            }
+            if (weightUnitPresent) {
+              createWorkoutExerciseSetRecord.weight = set.weight as number;
+              createWorkoutExerciseSetRecord.weightUnitId = (weightUnitRecord as WeightUnit).id;
+            }
+            createWorkoutExerciseSetsRecords.push(createWorkoutExerciseSetRecord);
+          });
+        });
+
+        await WorkoutExercise.bulkCreate(createWorkoutExercisesRecords, { transaction });
+        await WorkoutExerciseSet.bulkCreate(createWorkoutExerciseSetsRecords, { transaction });
+      });
+
+      return okAsync({ success: true, message: 'Workout created successfully' } as const);
+    } catch (error) {
+      logger.error(`Error creating workout`);
+      logger.debug(error);
+      if (error instanceof CustomError) {
+        return errAsync({
+          reason: ERROR_REASONS.BAD_REQUEST,
+          details: error.message,
+        } as const);
+      }
+      return errAsync({
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
+        details: error,
+      } as const);
+    }
+  }
+}

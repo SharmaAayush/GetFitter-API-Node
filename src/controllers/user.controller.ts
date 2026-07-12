@@ -8,6 +8,8 @@ import logger from '@/services/logger';
 import { UserService } from '@/services/user.service';
 import { ApiErrorResponse, ApiSuccessResponse } from '@/types/response';
 import { UserModelResponse, UserRegisterRequest } from '@/types/user.dto';
+import { decodeShareCodeToUuid } from '@/services/shareCode.service';
+import User from '@/models/user.model';
 
 export class UserController {
   service = new UserService();
@@ -62,8 +64,15 @@ export class UserController {
           message: 'Invalid credentials'
         } satisfies ApiErrorResponse);
       }
+      const userId = decodeShareCodeToUuid(user.id, User.prefix);
+      if (!userId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid credentials'
+        } satisfies ApiErrorResponse);
+      }
 
-      const jwtToken = jwt.sign({ ...user }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRATION_TIME });
+      const jwtToken = jwt.sign({ ...user, id: userId }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRATION_TIME });
       return res.status(200).json({
         success: true,
         message: 'Login successful',
