@@ -310,4 +310,40 @@ export class WorkoutService {
       } as const);
     }
   }
+
+  async deleteWorkout(workoutId: string, user: UserModelResponse) {
+    try {
+      // Find the workout by shareCode and ensure it belongs to the user
+      const workout = await Workout.findOne({
+        where: { shareCode: workoutId },
+      });
+
+      if (!workout) {
+        return errAsync({
+          reason: ERROR_REASONS.NOT_FOUND,
+          details: 'Workout not found',
+        } as const);
+      }
+
+      // Check if the workout belongs to the user
+      if (workout.userId !== user.id) {
+        return errAsync({
+          reason: ERROR_REASONS.FORBIDDEN,
+          details: 'You do not have permission to delete this workout',
+        } as const);
+      }
+
+      // Delete the workout (cascade will handle WorkoutExercise and WorkoutExerciseSet)
+      await workout.destroy();
+
+      return okAsync('Workout deleted successfully' as const);
+    } catch (error) {
+      logger.error(`Error deleting workout`);
+      logger.debug(error);
+      return errAsync({
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
+        details: error,
+      } as const);
+    }
+  }
 }

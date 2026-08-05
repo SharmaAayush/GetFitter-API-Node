@@ -10,4 +10,6 @@ router.get('/', controller.getWorkouts.bind(controller));
 
 router.put('/:id', controller.updateWorkout.bind(controller));
 
+router.delete('/:id', controller.deleteWorkout.bind(controller));
+
 export default router;

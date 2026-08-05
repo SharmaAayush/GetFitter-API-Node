@@ -39,3 +39,9 @@ export const updateWorkoutRequestSchema = z.object({
     exercises: z.array(workoutExerciseSchema).optional(),
   }),
 });
+
+export const deleteWorkoutRequestSchema = z.object({
+  params: z.object({
+    id: z.string().startsWith('WKT', 'Invalid workout share code'),
+  }),
+});
