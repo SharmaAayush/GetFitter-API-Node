@@ -8,4 +8,6 @@ router.post('/', controller.createWorkout.bind(controller));
 
 router.get('/', controller.getWorkouts.bind(controller));
 
+router.put('/:id', controller.updateWorkout.bind(controller));
+
 export default router;

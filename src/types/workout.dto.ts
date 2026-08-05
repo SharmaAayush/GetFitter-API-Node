@@ -1,9 +1,10 @@
-import { createWorkoutRequestSchema } from "@/validators/workout.validator";
+import { createWorkoutRequestSchema, updateWorkoutRequestSchema } from "@/validators/workout.validator";
 import z from "zod";
 import { BaseModelResponse } from "./base.models";
 import { ExerciseModelResponse } from "./exercise.dto";
 
 export type CreateWorkoutRequest = z.infer<typeof createWorkoutRequestSchema>;
+export type UpdateWorkoutRequest = z.infer<typeof updateWorkoutRequestSchema>;
 
 export interface WorkoutSet {
   setNumber: number;

@@ -1,6 +1,6 @@
 import Exercise from "@/models/exercise.model";
 import WeightUnit from "@/models/weightunits.model";
-import { CreateWorkoutRequest } from "@/types/workout.dto";
+import { CreateWorkoutRequest, UpdateWorkoutRequest } from "@/types/workout.dto";
 import logger from "@/services/logger";
 import { ERROR_REASONS } from "@/consts/error-reasons";
 import { errAsync, okAsync } from "neverthrow";
@@ -39,7 +39,7 @@ export class WorkoutService {
     return weightUnits;
   }
 
-  private async getNestedModels(workoutBody: CreateWorkoutRequest['body']) {
+  private async getNestedModels(workoutBody: { exercises: CreateWorkoutRequest['body']['exercises'] }) {
     const exerciseIds: string[] = [];
     const weighUnitIds: string[] = [];
     const levels: Level[] = [];
@@ -168,6 +168,142 @@ export class WorkoutService {
     } catch (error) {
       logger.error(`Error fetching workout`);
       logger.debug(error);
+      return errAsync({
+        reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
+        details: error,
+      } as const);
+    }
+  }
+
+  async updateWorkout(workoutId: string, workoutBody: UpdateWorkoutRequest['body'], user: UserModelResponse) {
+    try {
+      // Find the workout by shareCode and ensure it belongs to the user
+      const workout = await Workout.findOne({
+        where: { shareCode: workoutId },
+        include: [
+          { model: User },
+          { model: Level },
+          { model: Exercise, include: [{ all: true }] },
+          {
+            model: WorkoutExercise, include: [{
+              model: WorkoutExerciseSet,
+              include: [{ all: true }],
+            }]
+          },
+        ]
+      });
+
+      if (!workout) {
+        return errAsync({
+          reason: ERROR_REASONS.NOT_FOUND,
+          details: 'Workout not found',
+        } as const);
+      }
+
+      // Check if the workout belongs to the user
+      if (workout.userId !== user.id) {
+        return errAsync({
+          reason: ERROR_REASONS.FORBIDDEN,
+          details: 'You do not have permission to update this workout',
+        } as const);
+      }
+
+      // If exercises are provided, update them
+      if (workoutBody.exercises && workoutBody.exercises.length > 0) {
+        const exercises = workoutBody.exercises;
+        const { exerciseMap, weightUnitMap, maxPriorityLevel } = await this.getNestedModels({ exercises });
+
+        await sequelize.transaction(async transaction => {
+          // Update workout basic info
+          if (typeof workoutBody.name === 'string') workout.name = workoutBody.name;
+          if (typeof workoutBody.description === 'string') workout.description = workoutBody.description;
+          if (typeof workoutBody.estimatedDuration === 'number') workout.estimatedDuration = workoutBody.estimatedDuration;
+          workout.levelId = maxPriorityLevel.id;
+          await workout.save({ transaction });
+
+          // Delete existing workout exercises and sets
+          await WorkoutExerciseSet.destroy({
+            where: {
+              workoutExerciseId: workout.WorkoutExercises?.map(we => we.id) || []
+            },
+            transaction
+          });
+          await WorkoutExercise.destroy({
+            where: { workoutId: workout.id },
+            transaction
+          });
+
+          // Create new workout exercises and sets
+          const createWorkoutExercisesRecords: Array<CreationAttributes<WorkoutExercise>> = [];
+          const createWorkoutExerciseSetsRecords: Array<CreationAttributes<WorkoutExerciseSet>> = [];
+
+          exercises.forEach(exercise => {
+            const exerciseRecord = exerciseMap.get(exercise.exerciseId);
+            if (!exerciseRecord) throw new CustomError(`Invalid exercise share code ${exercise.exerciseId}`);
+            const workoutExerciseId = uuidv7();
+            const createWorkoutExerciseRecord: CreationAttributes<WorkoutExercise> = {
+              id: workoutExerciseId,
+              workoutId: workout.id,
+              exerciseId: exerciseRecord.id,
+              orderIndex: exercise.order,
+            }
+            createWorkoutExercisesRecords.push(createWorkoutExerciseRecord);
+
+            exercise.sets.forEach(set => {
+              const weightUnitRecord = set.weightUnit ? weightUnitMap.get(set.weightUnit) : null;
+              const weightUnitPresent = set.weightUnit;
+              if (!weightUnitRecord && weightUnitPresent) throw new CustomError(`Invalid weight unit share code ${set.weightUnit}`);
+              const createWorkoutExerciseSetRecord: CreationAttributes<WorkoutExerciseSet> = {
+                reps: set.reps,
+                setNumber: set.setNumber,
+                workoutExerciseId: workoutExerciseId,
+              }
+              if (weightUnitPresent) {
+                createWorkoutExerciseSetRecord.weight = set.weight as number;
+                createWorkoutExerciseSetRecord.weightUnitId = (weightUnitRecord as WeightUnit).id;
+              }
+              createWorkoutExerciseSetsRecords.push(createWorkoutExerciseSetRecord);
+            });
+          });
+
+          await WorkoutExercise.bulkCreate(createWorkoutExercisesRecords, { transaction });
+          await WorkoutExerciseSet.bulkCreate(createWorkoutExerciseSetsRecords, { transaction });
+        });
+      } else {
+        // Only update basic info if no exercises provided
+        if (typeof workoutBody.name === 'string') workout.name = workoutBody.name;
+        if (typeof workoutBody.description === 'string') workout.description = workoutBody.description;
+        if (typeof workoutBody.estimatedDuration === 'number') workout.estimatedDuration = workoutBody.estimatedDuration;
+        await workout.save();
+      }
+
+      // Fetch the updated workout with all associations
+      const updatedWorkout = await Workout.findOne({
+        where: { shareCode: workoutId },
+        include: [
+          { model: User },
+          { model: Level },
+          { model: Exercise, include: [{ all: true }] },
+          {
+            model: WorkoutExercise, include: [{
+              model: WorkoutExerciseSet,
+              include: [{ all: true }],
+            }]
+          },
+        ]
+      });
+
+      const transformedWorkouts = await transformModelArr([updatedWorkout!]);
+      return okAsync(transformedWorkouts[0]);
+    } catch (error) {
+      logger.error(`Error updating workout`);
+      logger.debug(error);
+      if (error instanceof CustomError) {
+        return errAsync({
+          reason: ERROR_REASONS.BAD_REQUEST,
+          details: error.message,
+        } as const);
+      }
       return errAsync({
         reason: ERROR_REASONS.INTERNAL_SERVER_ERROR,
         details: error,
